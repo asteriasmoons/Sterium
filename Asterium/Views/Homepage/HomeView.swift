@@ -4,25 +4,70 @@
 //
 
 import SwiftUI
+import Combine
 
 struct HomeView: View {
     @StateObject private var planetaryService = PlanetaryHourService()
     @State private var now = Date()
+    @State private var aiCorrespondences: CurrentCorrespondencesAIResponse?
+    @State private var currentCorrespondenceDayKey = Self.dayKey(for: Date())
 
-    private let moon = MoonPhaseCalculator.calculate()
-    private let sabbat = DailySpiritualCalculator.nextSabbat()
-    private let today = Date()
+    private let currentCorrespondencesService = CurrentCorrespondencesService()
+
+    private var moon: MoonPhaseData {
+        MoonPhaseCalculator.calculate(for: now)
+    }
+
+    private var sabbat: SabbatInfo {
+        DailySpiritualCalculator.nextSabbat(from: now)
+    }
 
     private var planetaryDay: Planet {
-        DailySpiritualCalculator.planetaryDay(for: today)
+        DailySpiritualCalculator.planetaryDay(for: now)
     }
 
     private var weekdayName: String {
-        DailySpiritualCalculator.weekdayName(for: today)
+        DailySpiritualCalculator.weekdayName(for: now)
     }
 
     private var correspondences: DailyCorrespondences {
         DailySpiritualCalculator.correspondences(for: planetaryDay)
+    }
+
+    private var correspondenceTitle: String {
+        aiCorrespondences?.title ?? "Today's energies"
+    }
+
+    private var correspondenceMessage: String? {
+        aiCorrespondences?.message
+    }
+
+    private var correspondencePlanet: String {
+        aiCorrespondences?.planet ?? correspondences.planet.displayName
+    }
+
+    private var correspondencePlanetAsset: String {
+        guard let planet = planet(from: correspondencePlanet) else {
+            return planetAssetName(correspondences.planet)
+        }
+
+        return planetAssetName(planet)
+    }
+
+    private var correspondenceElement: String {
+        aiCorrespondences?.element ?? correspondences.element
+    }
+
+    private var correspondenceColor: String {
+        aiCorrespondences?.color ?? correspondences.color
+    }
+
+    private var correspondenceCrystal: String {
+        aiCorrespondences?.crystal ?? correspondences.crystal
+    }
+
+    private var correspondenceHerb: String {
+        aiCorrespondences?.herb ?? correspondences.herb
     }
 
     private var luckyHours: [LuckyHour] {
@@ -53,6 +98,25 @@ struct HomeView: View {
             Timer.publish(every: 1, on: .main, in: .common).autoconnect()
         ) { date in
             now = date
+            let updatedDayKey = Self.dayKey(for: date)
+
+            guard updatedDayKey != currentCorrespondenceDayKey else {
+                return
+            }
+
+            currentCorrespondenceDayKey = updatedDayKey
+
+            Task {
+                await refreshCurrentCorrespondences()
+            }
+        }
+        .task {
+            await loadCurrentCorrespondences()
+        }
+        .onChange(of: planetaryService.state) {
+            Task {
+                await loadCurrentCorrespondences()
+            }
         }
     }
 
@@ -100,7 +164,7 @@ struct HomeView: View {
                 HStack(spacing: 12) {
                     metricPill(
                         label: "COUNTDOWN",
-                        value: "\(sabbat.countdown(from: today)) days",
+                        value: "\(sabbat.countdown(from: now)) days",
                         asset: "hourglassfill"
                     )
                     metricPill(
@@ -166,40 +230,47 @@ struct HomeView: View {
     private var correspondencesCard: some View {
         GlassCard {
             VStack(alignment: .leading, spacing: 16) {
-                cardHeader(asset: "wand", eyebrow: "CURRENT CORRESPONDENCES", title: "Today's energies")
+                cardHeader(asset: "wand", eyebrow: "CURRENT CORRESPONDENCES", title: correspondenceTitle)
 
                 VStack(spacing: 12) {
                     HStack(spacing: 12) {
                         metricPill(
                             label: "PLANET",
-                            value: correspondences.planet.displayName,
-                            asset: planetAssetName(correspondences.planet)
+                            value: correspondencePlanet,
+                            asset: correspondencePlanetAsset
                         )
                         metricPill(
                             label: "ELEMENT",
-                            value: correspondences.element,
-                            asset: elementAssetName(correspondences.element)
+                            value: correspondenceElement,
+                            asset: elementAssetName(correspondenceElement)
                         )
                     }
 
                     HStack(spacing: 12) {
                         metricPill(
                             label: "COLOR",
-                            value: correspondences.color,
+                            value: correspondenceColor,
                             asset: "paintdrop"
                         )
                         metricPill(
                             label: "CRYSTAL",
-                            value: correspondences.crystal,
+                            value: correspondenceCrystal,
                             asset: "crystalball"
                         )
                     }
 
                     metricPill(
                         label: "HERB",
-                        value: correspondences.herb,
+                        value: correspondenceHerb,
                         asset: "seedling"
                     )
+                }
+
+                if let correspondenceMessage {
+                    Text(correspondenceMessage)
+                        .font(.system(size: 14, weight: .semibold, design: .rounded))
+                        .foregroundStyle(LColors.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -386,11 +457,11 @@ struct HomeView: View {
     }
 
     private func elementAssetName(_ element: String) -> String {
-        switch element {
-        case "Fire": "fire"
-        case "Water": "water"
-        case "Air": "air"
-        case "Earth": "earth"
+        switch element.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "fire": "fire"
+        case "water": "water"
+        case "air": "air"
+        case "earth": "earth"
         default: "sparkle"
         }
     }
@@ -403,6 +474,63 @@ struct HomeView: View {
         max(Int(ceil(date.timeIntervalSinceNow / 60)), 0)
     }
 
+    private func loadCurrentCorrespondences() async {
+        if let cachedResponse = currentCorrespondencesService.cachedResponse(
+            for: currentCorrespondenceDayKey
+        ) {
+            aiCorrespondences = cachedResponse
+            return
+        }
+
+        guard planetaryService.result != nil ||
+              planetaryService.state == .locationDenied ||
+              isPlanetaryServiceUnavailable
+        else {
+            return
+        }
+
+        await refreshCurrentCorrespondences()
+    }
+
+    private func refreshCurrentCorrespondences() async {
+        let request = CurrentCorrespondencesAIRequest(
+            date: now.formatted(date: .numeric, time: .omitted),
+            weekday: weekdayName,
+            planetaryDay: planetaryDay.displayName,
+            planetaryHour: planetaryService.result?.currentPlanet.displayName,
+            nextPlanetaryHour: planetaryService.result?.nextPlanet.displayName,
+            moonPhase: moon.phaseName,
+            moonSign: moon.signName,
+            moonIlluminationPercent: moon.illuminationPercent,
+            upcomingSabbat: sabbat.name,
+            daysUntilSabbat: sabbat.countdown(from: now)
+        )
+
+        do {
+            aiCorrespondences = try await currentCorrespondencesService.responseForToday(
+                dayKey: currentCorrespondenceDayKey,
+                requestBody: request
+            )
+        } catch {
+            aiCorrespondences = nil
+        }
+    }
+
+    private func planet(from name: String) -> Planet? {
+        Planet.allCases.first {
+            $0.displayName.caseInsensitiveCompare(name) == .orderedSame ||
+                $0.rawValue.caseInsensitiveCompare(name) == .orderedSame
+        }
+    }
+
+    private var isPlanetaryServiceUnavailable: Bool {
+        if case .unavailable = planetaryService.state {
+            return true
+        }
+
+        return false
+    }
+
     private var liveSabbatCountdown: String {
         let remaining = max(sabbat.date.timeIntervalSince(now), 0)
         let totalSeconds = Int(remaining)
@@ -411,6 +539,18 @@ struct HomeView: View {
         let minutes = (totalSeconds % 3_600) / 60
         let seconds = totalSeconds % 60
 
-        return "\(days)d \(hours)h \(minutes)m \(seconds)s"
+        return "\(days)D \(hours)H \(minutes)M \(seconds)S"
+    }
+
+    private static func dayKey(for date: Date) -> String {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = .autoupdatingCurrent
+
+        let components = calendar.dateComponents([.year, .month, .day], from: date)
+        let year = components.year ?? 0
+        let month = components.month ?? 0
+        let day = components.day ?? 0
+
+        return String(format: "%04d-%02d-%02d", year, month, day)
     }
 }
