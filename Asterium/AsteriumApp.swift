@@ -12,7 +12,21 @@ import SwiftData
 struct AsteriumApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            GrimoireAttachment.self,
+            GrimoireRelatedEntry.self,
+            JournalEntry.self,
+            ExperienceEntry.self,
+            WorkingDocumentEntry.self,
+            WorkingResultEntry.self,
+            DreamEntry.self,
+            SynchronicityEntry.self,
+            PathworkEntry.self,
+            MoonPhaseEntry.self,
+            DeityDevotionEntry.self,
+            DivinationEntry.self,
+            MeditationEntry.self,
+            ShadowWorkEntry.self,
+            ManifestationEntry.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
@@ -25,7 +39,7 @@ struct AsteriumApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
         }
         .modelContainer(sharedModelContainer)
     }
