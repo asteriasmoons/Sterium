@@ -122,6 +122,17 @@ struct ShadowWorkEntryForm: View {
                 .padding(.horizontal, LSpacing.pageHorizontal)
                 .padding(.bottom, 40)
             }
+            .scrollDismissesKeyboard(.immediately)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+            )
             .background { AsteriumBackground() }
             .toolbar(.hidden, for: .navigationBar)
         }

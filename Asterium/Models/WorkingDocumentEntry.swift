@@ -18,6 +18,7 @@ final class WorkingDocumentEntry {
     var purpose: String = ""
     var ingredientsAndTools: String = ""
     var moonPhase: String = ""
+    var zodiacSign: String = ""
     var planetaryDay: String = ""
     var deity: String?
     var location: String = ""
@@ -93,6 +94,7 @@ final class WorkingDocumentEntry {
         purpose: String = "",
         ingredientsAndTools: String = "",
         moonPhase: String = "",
+        zodiacSign: String = "",
         planetaryDay: String = "",
         deity: String? = nil,
         location: String = "",
@@ -118,6 +120,7 @@ final class WorkingDocumentEntry {
         self.purpose = purpose
         self.ingredientsAndTools = ingredientsAndTools
         self.moonPhase = moonPhase
+        self.zodiacSign = zodiacSign
         self.planetaryDay = planetaryDay
         self.deity = deity
         self.location = location

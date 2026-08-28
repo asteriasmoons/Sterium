@@ -68,9 +68,14 @@ final class CurrentCorrespondencesService {
         self.userDefaults = userDefaults
     }
 
-    func cachedResponse(for dayKey: String) -> CurrentCorrespondencesAIResponse? {
+    func cachedResponse(
+        for dayKey: String,
+        planetaryDay: String
+    ) -> CurrentCorrespondencesAIResponse? {
         guard let cached = cachedResponse(),
-              cached.dayKey == dayKey
+              cached.dayKey == dayKey,
+              cached.response.planet.normalizedCorrespondenceValue ==
+                planetaryDay.normalizedCorrespondenceValue
         else {
             return nil
         }
@@ -82,11 +87,22 @@ final class CurrentCorrespondencesService {
         dayKey: String,
         requestBody: CurrentCorrespondencesAIRequest
     ) async throws -> CurrentCorrespondencesAIResponse {
-        if let cached = cachedResponse(for: dayKey) {
+        if let cached = cachedResponse(
+            for: dayKey,
+            planetaryDay: requestBody.planetaryDay
+        ) {
             return cached
         }
 
         let response = try await fetch(requestBody)
+        guard response.planet.normalizedCorrespondenceValue ==
+                requestBody.planetaryDay.normalizedCorrespondenceValue
+        else {
+            throw CurrentCorrespondencesServiceError.backend(
+                "Current correspondences returned \(response.planet) for \(requestBody.planetaryDay)."
+            )
+        }
+
         cache(response, dayKey: dayKey)
         return response
     }
@@ -136,7 +152,7 @@ final class CurrentCorrespondencesService {
             return configuredURL
         }
 
-        return "https://appapi.vox.com.im"
+        return "https://appapi.voxiverse.ink"
     }
 
     private func cachedResponse() -> CachedResponse? {
@@ -162,4 +178,10 @@ final class CurrentCorrespondencesService {
 
 private struct CurrentCorrespondencesBackendError: Decodable {
     let error: String
+}
+
+private extension String {
+    var normalizedCorrespondenceValue: String {
+        trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
 }

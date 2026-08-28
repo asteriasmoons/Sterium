@@ -27,7 +27,21 @@ extension GrimoireEntryType {
     }
 
     var icon: String {
-        "grimoire"
+        switch self {
+        case .journal:          return "openbook"
+        case .workingDocument:  return "wand"
+        case .workingResult:    return "starnote"
+        case .dream:            return "moonzs"
+        case .synchronicity:    return "sparklecircle"
+        case .pathwork:         return "journey"
+        case .moonPhase:        return "themoon"
+        case .deityDevotion:    return "starchalice"
+        case .divination:       return "tarotcards"
+        case .meditation:       return "meditate"
+        case .shadowWork:       return "eyeslash"
+        case .manifestation:    return "startarget"
+        case .experience:       return "starry"
+        }
     }
 
     var singularName: String {

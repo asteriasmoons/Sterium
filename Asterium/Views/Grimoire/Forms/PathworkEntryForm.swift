@@ -19,12 +19,14 @@ struct PathworkEntryForm: View {
     @State private var focusArea: String
     @State private var whyThisPath: String
     @State private var currentPractices: String
+    @State private var selectedPractices: Set<String>
+    @State private var customPractice: String
     @State private var goals: String
     @State private var currentChallenges: String
     @State private var recentBreakthroughs: String
     @State private var resourcesStudying: String
     @State private var reflection: String
-    @State private var nextSteps: String
+    @State private var nextSteps: [String]
 
     @State private var importance: Int
     @State private var tags: [String]
@@ -39,13 +41,23 @@ struct PathworkEntryForm: View {
         _currentStatusDisplay = State(initialValue: (existing.flatMap { PathworkStatus(rawValue: $0.currentStatusRawValue) } ?? .exploring).displayName)
         _focusArea = State(initialValue: existing?.focusArea ?? "")
         _whyThisPath = State(initialValue: existing?.whyThisPath ?? "")
-        _currentPractices = State(initialValue: existing?.currentPractices ?? "")
+        let savedPractice = existing?.currentPractices ?? ""
+        let predeterminedPractices = ["Meditation", "Visualization", "Grounding", "Centering", "Energy Work", "Cleansing", "Protection", "Divination", "Moon Work", "Planetary Work", "Candle Magic", "Crystal Work", "Herbal Magic", "Sigil Work", "Prayer", "Devotion", "Ritual", "Spellwork", "Journaling", "Study"]
+        let savedItems = savedPractice
+            .split(separator: "|")
+            .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+        let predefinedSaved = Set(savedItems.filter { predeterminedPractices.contains($0) })
+        let customSaved = savedItems.first { !predeterminedPractices.contains($0) } ?? ""
+        _currentPractices = State(initialValue: savedPractice)
+        _selectedPractices = State(initialValue: predefinedSaved)
+        _customPractice = State(initialValue: customSaved)
         _goals = State(initialValue: existing?.goals ?? "")
         _currentChallenges = State(initialValue: existing?.currentChallenges ?? "")
         _recentBreakthroughs = State(initialValue: existing?.recentBreakthroughs ?? "")
         _resourcesStudying = State(initialValue: existing?.resourcesStudying ?? "")
         _reflection = State(initialValue: existing?.reflection ?? "")
-        _nextSteps = State(initialValue: existing?.nextSteps ?? "")
+        _nextSteps = State(initialValue: existing?.nextStepsList ?? [])
         _importance = State(initialValue: existing?.importance ?? 1)
         _tags = State(initialValue: existing?.tags ?? [])
         _attachments = State(initialValue: existing?.attachments ?? [])
@@ -93,10 +105,16 @@ struct PathworkEntryForm: View {
                         text: $whyThisPath
                     )
 
-                    AsteriumTextEditor(
+                    AsteriumMultiSelectPickerField(
                         title: "Current Practices",
-                        placeholder: "Your current practices...",
-                        text: $currentPractices
+                        options: ["Meditation", "Visualization", "Grounding", "Centering", "Energy Work", "Cleansing", "Protection", "Divination", "Moon Work", "Planetary Work", "Candle Magic", "Crystal Work", "Herbal Magic", "Sigil Work", "Prayer", "Devotion", "Ritual", "Spellwork", "Journaling", "Study"],
+                        selections: $selectedPractices
+                    )
+
+                    AsteriumTextField(
+                        title: "Custom Practice",
+                        placeholder: "Enter another practice...",
+                        text: $customPractice
                     )
 
                     AsteriumTextEditor(
@@ -129,10 +147,10 @@ struct PathworkEntryForm: View {
                         text: $reflection
                     )
 
-                    AsteriumTextEditor(
+                    AsteriumDynamicStepsField(
                         title: "Next Steps",
-                        placeholder: "What comes next?",
-                        text: $nextSteps
+                        steps: $nextSteps,
+                        maxSteps: 9
                     )
 
                     GrimoireUniversalFields(
@@ -150,12 +168,31 @@ struct PathworkEntryForm: View {
                 .padding(.horizontal, LSpacing.pageHorizontal)
                 .padding(.bottom, 40)
             }
+            .scrollDismissesKeyboard(.immediately)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+            )
             .background { AsteriumBackground() }
             .toolbar(.hidden, for: .navigationBar)
         }
     }
 
     private func save() {
+        let predefinedOrder = ["Meditation", "Visualization", "Grounding", "Centering", "Energy Work", "Cleansing", "Protection", "Divination", "Moon Work", "Planetary Work", "Candle Magic", "Crystal Work", "Herbal Magic", "Sigil Work", "Prayer", "Devotion", "Ritual", "Spellwork", "Journaling", "Study"]
+        var practiceItems = predefinedOrder.filter { selectedPractices.contains($0) }
+        let trimmedCustomPractice = customPractice.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedCustomPractice.isEmpty {
+            practiceItems.append(trimmedCustomPractice)
+        }
+        currentPractices = practiceItems.joined(separator: " | ")
+
         if let existing {
             existing.chapterTitle = chapterTitle
             existing.started = started
@@ -168,7 +205,7 @@ struct PathworkEntryForm: View {
             existing.recentBreakthroughs = recentBreakthroughs
             existing.resourcesStudying = resourcesStudying
             existing.reflection = reflection
-            existing.nextSteps = nextSteps
+            existing.nextStepsList = Array(nextSteps.prefix(9)).filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
             existing.importance = importance
             existing.tags = tags
             existing.attachments = attachments
@@ -188,7 +225,7 @@ struct PathworkEntryForm: View {
                 recentBreakthroughs: recentBreakthroughs,
                 resourcesStudying: resourcesStudying,
                 reflection: reflection,
-                nextSteps: nextSteps,
+                nextStepsList: Array(nextSteps.prefix(9)).filter { !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty },
                 importance: importance,
                 tags: tags,
                 attachments: attachments,

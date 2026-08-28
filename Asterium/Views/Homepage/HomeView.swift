@@ -476,8 +476,15 @@ struct HomeView: View {
 
     private func loadCurrentCorrespondences() async {
         if let cachedResponse = currentCorrespondencesService.cachedResponse(
-            for: currentCorrespondenceDayKey
+            for: currentCorrespondenceDayKey,
+            planetaryDay: planetaryDay.displayName
         ) {
+            print("[CurrentCorrespondences] using cached response", [
+                "dayKey": currentCorrespondenceDayKey,
+                "planetaryDay": planetaryDay.displayName,
+                "planet": cachedResponse.planet,
+                "element": cachedResponse.element
+            ])
             aiCorrespondences = cachedResponse
             return
         }
@@ -486,6 +493,11 @@ struct HomeView: View {
               planetaryService.state == .locationDenied ||
               isPlanetaryServiceUnavailable
         else {
+            print("[CurrentCorrespondences] waiting for planetary context", [
+                "dayKey": currentCorrespondenceDayKey,
+                "planetaryDay": planetaryDay.displayName,
+                "state": "\(planetaryService.state)"
+            ])
             return
         }
 
@@ -507,11 +519,41 @@ struct HomeView: View {
         )
 
         do {
+            print("[CurrentCorrespondences] backend request", [
+                "dayKey": currentCorrespondenceDayKey,
+                "date": request.date,
+                "weekday": request.weekday,
+                "planetaryDay": request.planetaryDay,
+                "planetaryHour": request.planetaryHour ?? "nil",
+                "nextPlanetaryHour": request.nextPlanetaryHour ?? "nil",
+                "moonPhase": request.moonPhase,
+                "moonSign": request.moonSign,
+                "upcomingSabbat": request.upcomingSabbat
+            ])
+
             aiCorrespondences = try await currentCorrespondencesService.responseForToday(
                 dayKey: currentCorrespondenceDayKey,
                 requestBody: request
             )
+
+            if let aiCorrespondences {
+                print("[CurrentCorrespondences] backend/cache response", [
+                    "dayKey": currentCorrespondenceDayKey,
+                    "title": aiCorrespondences.title,
+                    "planet": aiCorrespondences.planet,
+                    "element": aiCorrespondences.element,
+                    "color": aiCorrespondences.color,
+                    "crystal": aiCorrespondences.crystal,
+                    "herb": aiCorrespondences.herb
+                ])
+            }
         } catch {
+            print("[CurrentCorrespondences] backend failed", [
+                "dayKey": currentCorrespondenceDayKey,
+                "planetaryDay": request.planetaryDay,
+                "planetaryHour": request.planetaryHour ?? "nil",
+                "error": error.localizedDescription
+            ])
             aiCorrespondences = nil
         }
     }

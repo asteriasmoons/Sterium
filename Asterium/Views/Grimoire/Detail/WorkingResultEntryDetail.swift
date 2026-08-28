@@ -21,27 +21,66 @@ struct WorkingResultEntryDetail: View {
 
     var body: some View {
         GrimoireDetailScaffold(eyebrow: "Working Result", title: entry.title, onEdit: { showingEdit = true }) {
-                    GrimoireDetailSection(title: "Overview") {
-                        if let linked = entry.linkedWorking {
-                            GrimoireDetailRow(label: "Linked Working", value: linked.title)
-                        }
+                    GrimoireDetailSection(title: "Date") {
                         GrimoireDetailRow(label: "Date", value: entry.date.formatted(date: .long, time: .omitted))
-                        GrimoireDetailRow(label: "Time Since Working", value: entry.timeSinceWorking)
+                    }
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("OUTCOME")
-                                .font(.system(size: 11, weight: .black, design: .rounded))
-                                .tracking(1.5)
-                                .foregroundStyle(LColors.textSecondary)
-                            Text(entry.overallOutcome.displayName)
-                                .font(.system(size: 13, weight: .black, design: .rounded))
-                                .foregroundStyle(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(
-                                    Capsule().fill(outcomeColor.opacity(0.8))
-                                )
+                    if let linked = entry.linkedWorking {
+                        VStack(alignment: .leading, spacing: 12) {
+                            AsteriumSectionHeader(title: "Linked Working")
+                            NavigationLink {
+                                WorkingDocumentEntryDetail(entry: linked)
+                            } label: {
+                                GlassCard(cornerRadius: 18, padding: 0) {
+                                    HStack(spacing: 10) {
+                                        Image(GrimoireEntryType.workingDocument.icon)
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 18, height: 18)
+                                            .foregroundStyle(LGradients.header)
+                                            .frame(width: 32, height: 32)
+                                            .background(LColors.glassSurface, in: Circle())
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text(linked.title)
+                                                .font(.system(size: 14, weight: .black, design: .rounded))
+                                                .foregroundStyle(LColors.textPrimary)
+                                                .lineLimit(1)
+
+                                            Text("Working Document")
+                                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                                .foregroundStyle(LColors.textSecondary)
+                                        }
+
+                                        Spacer()
+
+                                        Image("rightwavy")
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 14, height: 14)
+                                            .foregroundStyle(LGradients.header)
+                                    }
+                                    .padding(14)
+                                }
+                            }
+                            .buttonStyle(.plain)
                         }
+                    }
+
+                    GrimoireDetailSection(title: "Time Since Working") {
+                        GrimoireDetailRow(label: "Time Since Working", value: entry.timeSinceWorking)
+                    }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        AsteriumSectionHeader(title: "Outcome")
+                        Text(entry.overallOutcome.displayName)
+                            .font(.system(size: 13, weight: .black, design: .rounded))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
+                            .background(Capsule().fill(outcomeColor.opacity(0.8)))
                     }
 
                     GrimoireDetailSection(title: "Results") {
@@ -57,12 +96,27 @@ struct WorkingResultEntryDetail: View {
                         GrimoireDetailRow(label: "Notes", value: entry.notes)
                     }
 
-                    GrimoireDetailFooter(
-                        importance: entry.importance,
-                        tags: entry.tags,
-                        relatedEntries: entry.relatedEntries,
-                        additionalNotes: entry.additionalNotes
-                    )
+                    VStack(alignment: .leading, spacing: 10) {
+                        AsteriumSectionHeader(title: "Importance")
+                        GrimoireImportanceDots(value: entry.importance, showsLabel: false)
+                    }
+
+                    VStack(alignment: .leading, spacing: 10) {
+                        AsteriumSectionHeader(title: "Tags")
+                        GrimoireDetailChips(label: "Tags", items: entry.tags, showsLabel: false)
+                    }
+
+                    GrimoireDetailSection(title: "Related Entries") {
+                        GrimoireRelatedEntriesList(entries: entry.relatedEntries, showsLabel: false)
+                    }
+
+                    GrimoireDetailSection(title: "Additional Notes") {
+                        let trimmed = entry.additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
+                        Text(trimmed.isEmpty ? "No additional notes" : trimmed)
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundStyle(trimmed.isEmpty ? LColors.textSecondary : LColors.textPrimary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
         }
         .asteriumAdaptivePresentation(isPresented: $showingEdit) {
                 WorkingResultEntryForm(existing: entry)

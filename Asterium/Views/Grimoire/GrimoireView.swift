@@ -19,6 +19,7 @@ struct GrimoireListItem: Identifiable {
 // MARK: - Grimoire View
 
 struct GrimoireView: View {
+    @Environment(\.modelContext) private var modelContext
 
     // MARK: Queries (one per model type)
 
@@ -263,41 +264,123 @@ struct GrimoireView: View {
     private var entryList: some View {
         LazyVStack(spacing: 10) {
             ForEach(filteredItems) { item in
-                NavigationLink {
-                    destinationView(for: item)
-                } label: {
-                    entryRow(item)
-                }
-                .buttonStyle(.plain)
+                entryRow(item)
             }
         }
     }
 
     private func entryRow(_ item: GrimoireListItem) -> some View {
         GlassCard(cornerRadius: LSpacing.cardRadius, padding: LSpacing.cardPadding) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(item.type.color)
-                    .frame(width: 10, height: 10)
+            HStack(alignment: .top, spacing: 12) {
+                NavigationLink {
+                    destinationView(for: item)
+                } label: {
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(item.type.icon)
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 26, height: 26)
+                            .foregroundStyle(LGradients.header)
+                            .frame(width: 44, height: 44)
+                            .background(LColors.glassSurface, in: Circle())
 
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(item.title.isEmpty ? "Untitled" : item.title)
-                        .font(.system(size: 15, weight: .bold, design: .rounded))
-                        .foregroundStyle(LColors.textPrimary)
-                        .lineLimit(1)
+                        VStack(alignment: .leading, spacing: 5) {
+                            Text(item.title.isEmpty ? "Untitled" : item.title)
+                                .font(.system(size: 16, weight: .black, design: .rounded))
+                                .foregroundStyle(LColors.textPrimary)
+                                .lineLimit(1)
 
-                    Text(item.type.displayName)
-                        .font(.system(size: 12, weight: .semibold, design: .rounded))
-                        .foregroundStyle(LColors.textSecondary)
+                            Text(item.createdAt.formatted(date: .abbreviated, time: .omitted))
+                                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                                .foregroundStyle(LColors.textSecondary)
+
+                            Text(item.type.singularName)
+                                .font(.system(size: 12, weight: .black, design: .rounded))
+                                .foregroundStyle(LGradients.header)
+                        }
+
+                        Spacer(minLength: 0)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
 
-                Spacer()
-
-                Text(item.createdAt.formatted(date: .abbreviated, time: .omitted))
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .foregroundStyle(LColors.textSecondary)
+                Button {
+                    deleteEntry(item)
+                } label: {
+                    Image("trash")
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(LGradients.header)
+                        .frame(width: 36, height: 36)
+                        .background(LColors.glassSurface, in: Circle())
+                }
+                .buttonStyle(.plain)
             }
         }
+    }
+
+    private func deleteEntry(_ item: GrimoireListItem) {
+        switch item.type {
+        case .journal:
+            if let entry = journals.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .experience:
+            if let entry = experiences.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .workingDocument:
+            if let entry = workingDocuments.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .workingResult:
+            if let entry = workingResults.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .dream:
+            if let entry = dreams.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .synchronicity:
+            if let entry = synchronicities.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .pathwork:
+            if let entry = pathworks.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .moonPhase:
+            if let entry = moonPhases.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .deityDevotion:
+            if let entry = deityDevotions.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .divination:
+            if let entry = divinations.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .meditation:
+            if let entry = meditations.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .shadowWork:
+            if let entry = shadowWorks.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        case .manifestation:
+            if let entry = manifestations.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+            }
+        }
+
+        try? modelContext.save()
     }
 
     // MARK: - Empty State

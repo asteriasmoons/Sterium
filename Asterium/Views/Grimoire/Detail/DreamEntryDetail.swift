@@ -10,52 +10,114 @@ struct DreamEntryDetail: View {
     let entry: DreamEntry
     @State private var showingEdit = false
 
+    private let elementColumns = [
+        GridItem(.flexible(), spacing: 10),
+        GridItem(.flexible(), spacing: 10)
+    ]
+
     var body: some View {
         GrimoireDetailScaffold(eyebrow: "Dream", title: entry.title, onEdit: { showingEdit = true }) {
-                    GrimoireDetailSection(title: "Overview") {
-                        GrimoireDetailRow(label: "Date", value: entry.date.formatted(date: .long, time: .omitted))
-                        GrimoireDetailRow(label: "Sleep Quality", value: entry.sleepQuality.displayName)
+            overviewSection
 
-                        VStack(alignment: .leading, spacing: 6) {
-                            Text("DREAM TYPE")
-                                .font(.system(size: 11, weight: .black, design: .rounded))
-                                .tracking(1.5)
-                                .foregroundStyle(LColors.textSecondary)
-                            GrimoireStatusBadge(text: entry.dreamType.displayName)
-                        }
-                    }
+            if !entry.dreamSummary.isEmpty {
+                GrimoireDetailSection(title: "Summary") {
+                    Text(entry.dreamSummary)
+                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                        .foregroundStyle(LColors.textPrimary)
+                }
+            }
 
-                    if !entry.dreamSummary.isEmpty {
-                        GrimoireDetailSection(title: "Summary") {
-                            Text(entry.dreamSummary)
-                                .font(.system(size: 15, weight: .semibold, design: .rounded))
-                                .foregroundStyle(LColors.textPrimary)
-                        }
-                    }
+            dreamElementsSection
 
-                    GrimoireDetailSection(title: "Dream Elements") {
-                        GrimoireDetailChips(label: "Symbols", items: entry.symbols)
-                        GrimoireDetailChips(label: "People", items: entry.peoplePresent)
-                        GrimoireDetailChips(label: "Animals", items: entry.animals)
-                        GrimoireDetailChips(label: "Locations", items: entry.locations)
-                        GrimoireDetailChips(label: "Emotions", items: entry.dominantEmotions)
-                        GrimoireDetailChips(label: "Colors", items: entry.colors)
-                    }
+            GrimoireDetailSection(title: "Analysis") {
+                GrimoireDetailRow(label: "Interpretation", value: entry.interpretation)
+                GrimoireDetailRow(label: "Follow-Up Actions", value: entry.followUpActions)
+            }
 
-                    GrimoireDetailSection(title: "Analysis") {
-                        GrimoireDetailRow(label: "Interpretation", value: entry.interpretation)
-                        GrimoireDetailRow(label: "Follow-Up Actions", value: entry.followUpActions)
-                    }
-
-                    GrimoireDetailFooter(
-                        importance: entry.importance,
-                        tags: entry.tags,
-                        relatedEntries: entry.relatedEntries,
-                        additionalNotes: entry.additionalNotes
-                    )
+            dreamFooter
         }
         .asteriumAdaptivePresentation(isPresented: $showingEdit) {
-                DreamEntryForm(existing: entry)
+            DreamEntryForm(existing: entry)
         }
+    }
+
+    private var trimmedAdditionalNotes: String {
+        entry.additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private var overviewSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            AsteriumSectionHeader(title: "Overview")
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("DREAM TYPE")
+                    .font(.system(size: 11, weight: .black, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(LColors.textSecondary)
+
+                GrimoireStatusBadge(text: entry.dreamType.displayName)
+            }
+
+            detailBox(label: "Date", value: entry.date.formatted(date: .long, time: .omitted))
+            detailBox(label: "Sleep Quality", value: entry.sleepQuality.displayName)
+        }
+    }
+
+    private var dreamElementsSection: some View {
+        GrimoireDetailSection(title: "Dream Elements") {
+            LazyVGrid(columns: elementColumns, spacing: 12) {
+                GrimoireDetailRow(label: "Symbols", value: dreamElementValue(entry.symbols, emptyText: "No symbols"), usesFrostedTile: true, usesGradientValue: !entry.symbols.isEmpty)
+                GrimoireDetailRow(label: "People", value: dreamElementValue(entry.peoplePresent, emptyText: "No people"), usesFrostedTile: true, usesGradientValue: !entry.peoplePresent.isEmpty)
+                GrimoireDetailRow(label: "Animals", value: dreamElementValue(entry.animals, emptyText: "No animals"), usesFrostedTile: true, usesGradientValue: !entry.animals.isEmpty)
+                GrimoireDetailRow(label: "Locations", value: dreamElementValue(entry.locations, emptyText: "No locations"), usesFrostedTile: true, usesGradientValue: !entry.locations.isEmpty)
+                GrimoireDetailRow(label: "Emotions", value: dreamElementValue(entry.dominantEmotions, emptyText: "No emotions"), usesFrostedTile: true, usesGradientValue: !entry.dominantEmotions.isEmpty)
+                GrimoireDetailRow(label: "Colors", value: dreamElementValue(entry.colors, emptyText: "No colors"), usesFrostedTile: true, usesGradientValue: !entry.colors.isEmpty)
+            }
+        }
+    }
+
+    private var dreamFooter: some View {
+        Group {
+            VStack(alignment: .leading, spacing: 12) {
+                AsteriumSectionHeader(title: "Importance")
+                GrimoireImportanceDots(value: entry.importance, showsLabel: false)
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                AsteriumSectionHeader(title: "Tags")
+                GrimoireDetailChips(label: "Tags", items: entry.tags, showsLabel: false)
+            }
+
+            GrimoireDetailSection(title: "Related Entries") {
+                GrimoireRelatedEntriesList(entries: entry.relatedEntries, showsLabel: false)
+            }
+
+            GrimoireDetailSection(title: "Additional Notes") {
+                Text(trimmedAdditionalNotes.isEmpty ? "No additional notes" : trimmedAdditionalNotes)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(trimmedAdditionalNotes.isEmpty ? LColors.textSecondary : LColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func detailBox(label: String, value: String) -> some View {
+        GlassCard {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(label.uppercased())
+                    .font(.system(size: 11, weight: .black, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(LColors.textSecondary)
+
+                Text(value)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(LColors.textPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func dreamElementValue(_ items: [String], emptyText: String) -> String {
+        items.isEmpty ? emptyText : items.joined(separator: ", ")
     }
 }

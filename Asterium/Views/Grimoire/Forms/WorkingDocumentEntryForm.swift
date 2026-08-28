@@ -21,6 +21,7 @@ struct WorkingDocumentEntryForm: View {
     @State private var purpose: String
     @State private var ingredientsAndTools: String
     @State private var moonPhase: String
+    @State private var zodiacSign: String
     @State private var planetaryDay: String
     @State private var deity: String
     @State private var location: String
@@ -45,6 +46,7 @@ struct WorkingDocumentEntryForm: View {
         _purpose = State(initialValue: existing?.purpose ?? "")
         _ingredientsAndTools = State(initialValue: existing?.ingredientsAndTools ?? "")
         _moonPhase = State(initialValue: existing?.moonPhase ?? "")
+        _zodiacSign = State(initialValue: existing?.zodiacSign ?? "")
         _planetaryDay = State(initialValue: existing?.planetaryDay ?? "")
         _deity = State(initialValue: existing?.deity ?? "")
         _location = State(initialValue: existing?.location ?? "")
@@ -89,7 +91,18 @@ struct WorkingDocumentEntryForm: View {
 
                     AsteriumPickerField(
                         title: "Category",
-                        options: WorkingCategory.allCases.map { $0.displayName },
+                        options: [
+                            "Protection", "Prosperity", "Love", "Healing", "Banishing", "Cleansing", "Divination",
+                            "Beginnings", "Growth", "Transformation", "Success", "Career", "Opportunity", "Luck", "Good Fortune",
+                            "Abundance", "Wealth", "Confidence", "Courage", "Personal Power", "Strength", "Resilience", "Motivation",
+                            "Focus", "Clarity", "Wisdom", "Knowledge", "Memory", "Communication", "Creativity", "Inspiration",
+                            "Intuition", "Psychic Awareness", "Dreams", "Manifestation", "Spiritual Growth", "Grounding", "Balance",
+                            "Peace", "Serenity", "Happiness", "Harmony", "Positivity", "Hope", "Acceptance", "Forgiveness",
+                            "Emotional Healing", "Self-Love", "Self-Confidence", "Self-Discovery", "Beauty", "Passion", "Friendship",
+                            "Family", "Marriage", "Reconciliation", "Commitment", "Boundaries", "Release", "Purification", "Truth",
+                            "Justice", "Leadership", "Ambition", "Determination", "Patience", "Vitality", "Sleep", "Home", "Travel",
+                            "Other"
+                        ],
                         selection: $categoryDisplay
                     )
 
@@ -99,17 +112,35 @@ struct WorkingDocumentEntryForm: View {
                         selection: $workingKindDisplay
                     )
 
-                    AsteriumTextField(title: "Purpose", placeholder: "Purpose of working...", text: $purpose)
+                    AsteriumPickerField(
+                        title: "Purpose",
+                        options: ["Abundance", "Acceptance", "Ambition", "Balance", "Banishing", "Beauty", "Beginnings", "Boundaries", "Career", "Change", "Clarity", "Cleansing", "Commitment", "Communication", "Compassion", "Confidence", "Courage", "Creativity", "Determination", "Divination", "Dreams", "Emotional Healing", "Family", "Focus", "Forgiveness", "Friendship", "Good Fortune", "Gratitude", "Grounding", "Growth", "Happiness", "Harmony", "Healing", "Home", "Hope", "Inspiration", "Intuition", "Justice", "Knowledge", "Leadership", "Love", "Luck", "Manifestation", "Marriage", "Memory", "Motivation", "Opportunity", "Passion", "Patience", "Peace", "Personal Power", "Positivity", "Prosperity", "Protection", "Purification", "Psychic Awareness", "Reconciliation", "Release", "Resilience", "Self-Confidence", "Self-Discovery", "Self-Love", "Serenity", "Sleep", "Spiritual Growth", "Strength", "Success", "Transformation", "Travel", "Truth", "Vitality", "Wealth", "Wisdom"],
+                        selection: $purpose
+                    )
 
-                    AsteriumTextEditor(
+                    AsteriumNumberedListField(
                         title: "Ingredients & Tools",
-                        placeholder: "List ingredients and tools...",
+                        placeholder: "Add an ingredient or tool...",
                         text: $ingredientsAndTools
                     )
 
-                    AsteriumTextField(title: "Moon Phase", placeholder: "Current moon phase...", text: $moonPhase)
+                    AsteriumPickerField(
+                        title: "Moon Phase",
+                        options: ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"],
+                        selection: $moonPhase
+                    )
 
-                    AsteriumTextField(title: "Planetary Day", placeholder: "Day of the week / planet...", text: $planetaryDay)
+                    AsteriumPickerField(
+                        title: "Zodiac Sign",
+                        options: ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"],
+                        selection: $zodiacSign
+                    )
+
+                    AsteriumPickerField(
+                        title: "Planetary Day",
+                        options: ["Sunday — Sun", "Monday — Moon", "Tuesday — Mars", "Wednesday — Mercury", "Thursday — Jupiter", "Friday — Venus", "Saturday — Saturn"],
+                        selection: $planetaryDay
+                    )
 
                     AsteriumTextField(title: "Deity", placeholder: "Deity invoked (optional)...", text: $deity)
 
@@ -121,11 +152,10 @@ struct WorkingDocumentEntryForm: View {
                         text: $preparationNotes
                     )
 
-                    AsteriumTextEditor(
+                    AsteriumNumberedListField(
                         title: "Procedure Steps",
-                        placeholder: "Step-by-step procedure...",
-                        text: $procedureSteps,
-                        minHeight: 200
+                        placeholder: "Add a procedure step...",
+                        text: $procedureSteps
                     )
 
                     AsteriumTextEditor(
@@ -155,6 +185,17 @@ struct WorkingDocumentEntryForm: View {
                 .padding(.horizontal, LSpacing.pageHorizontal)
                 .padding(.bottom, 40)
             }
+            .scrollDismissesKeyboard(.immediately)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+            )
             .background { AsteriumBackground() }
             .toolbar(.hidden, for: .navigationBar)
         }
@@ -170,6 +211,7 @@ struct WorkingDocumentEntryForm: View {
             existing.purpose = purpose
             existing.ingredientsAndTools = ingredientsAndTools
             existing.moonPhase = moonPhase
+            existing.zodiacSign = zodiacSign
             existing.planetaryDay = planetaryDay
             existing.deity = deity.isEmpty ? nil : deity
             existing.location = location
@@ -193,6 +235,7 @@ struct WorkingDocumentEntryForm: View {
                 purpose: purpose,
                 ingredientsAndTools: ingredientsAndTools,
                 moonPhase: moonPhase,
+                zodiacSign: zodiacSign,
                 planetaryDay: planetaryDay,
                 deity: deity.isEmpty ? nil : deity,
                 location: location,

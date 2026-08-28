@@ -83,9 +83,9 @@ struct MainTabView: View {
         case .home:
             HomeView()
         case .correspondences:
-            PlaceholderTabView(icon: "wand", title: "Correspondences")
+            CorrespondencesView()
         case .spells:
-            PlaceholderTabView(icon: "potionsparkle", title: "Spells")
+            SpellsView()
         case .grimoire:
             GrimoireView()
         case .profile:

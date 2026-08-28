@@ -17,12 +17,12 @@ enum LColors {
     static let textSecondary = Color(seeryHex: "#888888")
     
     // Accent
-    static let accent = Color(seeryHex: "#03dbfc")
-    static let accentHover = Color(seeryHex: "#7d19f7")
+    static let accent = Color(seeryHex: "#bca64d")
+    static let accentHover = Color(seeryHex: "#ad640a")
     static let accentGradient = LinearGradient(
         colors: [
-            Color(seeryHex: "#03dbfc"),
-            Color(seeryHex: "#7d19f7")
+            Color(seeryHex: "#bca64d"),
+            Color(seeryHex: "#ad640a")
         ],
         startPoint: .leading,
         endPoint: .trailing
@@ -30,8 +30,8 @@ enum LColors {
     
     // Status
     static let success = Color(seeryHex: "#e2ed8a")
-    static let danger = Color(seeryHex: "#dc3beb")
-    static let warning = Color(seeryHex: "#a92ce8")
+    static let danger = Color(seeryHex: "#ad640a")
+    static let warning = Color(seeryHex: "#bca64d")
     
     // Glass surfaces
     static let glassSurface = Color.white.opacity(0.06)
@@ -40,19 +40,19 @@ enum LColors {
     static let glassBorderStrong = Color.white.opacity(0.22)
     
     // Gradient colors
-    static let gradientPurple = Color(seeryHex: "#7d19f7")
-    static let gradientBlue = Color(seeryHex: "#03dbfc")
-    static let gradientPink = Color(seeryHex: "#e019d4")
-    static let gradientCyan = Color(seeryHex: "#00dbff")
+    static let gradientPurple = Color(seeryHex: "#bca64d")
+    static let gradientBlue = Color(seeryHex: "#ad640a")
+    static let gradientPink = Color(seeryHex: "#bca64d")
+    static let gradientCyan = Color(seeryHex: "#bca64d")
     static let gradientYellow = Color(seeryHex: "#f6f684")
-    static let gradientDeepPurple = Color(seeryHex: "#8000fe")
+    static let gradientDeepPurple = Color(seeryHex: "#ad640a")
     
     // Badge colors
-    static let badgeOnce = Color(seeryHex: "#66b8ff")
-    static let badgeDaily = Color(seeryHex: "#7d19f7")
+    static let badgeOnce = Color(seeryHex: "#bca64d")
+    static let badgeDaily = Color(seeryHex: "#ad640a")
     static let badgeWeekly = Color.white
-    static let badgeMonthly = Color(seeryHex: "#ec4899")
-    static let badgeInterval = Color(seeryHex: "#02edd6")
+    static let badgeMonthly = Color(seeryHex: "#ad640a")
+    static let badgeInterval = Color(seeryHex: "#bca64d")
 }
 
 // MARK: - Gradients
@@ -65,7 +65,10 @@ enum LGradients {
     )
     
     static let header = LinearGradient(
-        colors: [LColors.gradientPurple, LColors.gradientBlue],
+        colors: [
+            Color(seeryHex: "#bca64d"),
+            Color(seeryHex: "#ad640a")
+        ],
         startPoint: .leading,
         endPoint: .trailing
     )
@@ -78,14 +81,14 @@ enum LGradients {
     
     // Background ambient glow
     static let bgPurple = RadialGradient(
-        colors: [Color(seeryHex: "#8000fe").opacity(0.34), .clear],
+        colors: [Color(seeryHex: "#bca64d").opacity(0.22), .clear],
         center: UnitPoint(x: 0.28, y: 0.18),
         startRadius: 0,
         endRadius: 450
     )
     
     static let bgCyan = RadialGradient(
-        colors: [Color(seeryHex: "#00dbff").opacity(0.22), .clear],
+        colors: [Color(seeryHex: "#ad640a").opacity(0.18), .clear],
         center: UnitPoint(x: 0.76, y: 0.78),
         startRadius: 0,
         endRadius: 475
@@ -99,14 +102,14 @@ enum LGradients {
     )
     
     static let bgPink = RadialGradient(
-        colors: [Color(seeryHex: "#e019d4").opacity(0.14), .clear],
+        colors: [Color(seeryHex: "#ad640a").opacity(0.10), .clear],
         center: UnitPoint(x: 0.42, y: 0.74),
         startRadius: 0,
         endRadius: 260
     )
 
     static let reward = LinearGradient(
-        colors: [Color(seeryHex: "#FF1493"), Color(seeryHex: "#FFB8EC")],
+        colors: [Color(seeryHex: "#bca64d"), Color(seeryHex: "#ad640a")],
         startPoint: .leading,
         endPoint: .trailing
     )

@@ -75,13 +75,25 @@ struct MoonPhaseEntryForm: View {
 
                     AsteriumDateField(title: "Date", date: $date)
 
-                    AsteriumTextField(title: "Moon Phase", placeholder: "e.g. Full Moon, New Moon...", text: $moonPhase)
+                    AsteriumPickerField(
+                        title: "Moon Phase",
+                        options: ["New Moon", "Waxing Crescent", "First Quarter", "Waxing Gibbous", "Full Moon", "Waning Gibbous", "Last Quarter", "Waning Crescent"],
+                        selection: $moonPhase
+                    )
 
-                    AsteriumTextField(title: "Zodiac Sign", placeholder: "e.g. Aries, Pisces...", text: $zodiacSign)
+                    AsteriumPickerField(
+                        title: "Zodiac Sign",
+                        options: ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"],
+                        selection: $zodiacSign
+                    )
 
                     energyLevelPicker
 
-                    AsteriumTextField(title: "Mood", placeholder: "Your mood...", text: $mood)
+                    AsteriumPickerField(
+                        title: "Mood",
+                        options: ["Calm", "Reflective", "Hopeful", "Focused", "Inspired", "Grounded", "Restless", "Emotional", "Energetic", "Drained", "Intuitive", "Motivated"],
+                        selection: $mood
+                    )
 
                     AsteriumTextEditor(
                         title: "Intentions",
@@ -122,6 +134,17 @@ struct MoonPhaseEntryForm: View {
                 .padding(.horizontal, LSpacing.pageHorizontal)
                 .padding(.bottom, 40)
             }
+            .scrollDismissesKeyboard(.immediately)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    UIApplication.shared.sendAction(
+                        #selector(UIResponder.resignFirstResponder),
+                        to: nil,
+                        from: nil,
+                        for: nil
+                    )
+                }
+            )
             .background { AsteriumBackground() }
             .toolbar(.hidden, for: .navigationBar)
         }

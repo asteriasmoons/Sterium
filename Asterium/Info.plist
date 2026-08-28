@@ -2,10 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Asterium uses your location to keep planetary day and hour guidance accurate even when the app is not open.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Asterium uses your location to display the planetary information on the homepage</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

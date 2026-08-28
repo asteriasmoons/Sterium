@@ -5,6 +5,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 // MARK: - Detail Header
 
@@ -92,6 +93,8 @@ struct GrimoireDetailScaffold<Content: View>: View {
 struct GrimoireDetailRow: View {
     let label: String
     let value: String
+    var usesFrostedTile = false
+    var usesGradientValue = false
 
     var body: some View {
         if !value.isEmpty {
@@ -102,7 +105,20 @@ struct GrimoireDetailRow: View {
                     .foregroundStyle(LColors.textSecondary)
                 Text(value)
                     .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundStyle(LColors.textPrimary)
+                    .foregroundStyle(usesGradientValue ? AnyShapeStyle(LGradients.header) : AnyShapeStyle(LColors.textPrimary))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, usesFrostedTile ? 14 : 0)
+            .padding(.vertical, usesFrostedTile ? 12 : 0)
+            .background {
+                if usesFrostedTile {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(LColors.glassSurface)
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 14)
+                                .strokeBorder(LColors.glassBorder, lineWidth: 1)
+                        }
+                }
             }
         }
     }
@@ -139,15 +155,22 @@ struct GrimoireDetailSection<Content: View>: View {
 struct GrimoireDetailChips: View {
     let label: String
     let items: [String]
+    var showsLabel = true
 
     var body: some View {
-        if !items.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            if showsLabel {
                 Text(label.uppercased())
                     .font(.system(size: 11, weight: .black, design: .rounded))
                     .tracking(1.5)
                     .foregroundStyle(LColors.textSecondary)
+            }
 
+            if items.isEmpty {
+                Text("No \(label.lowercased())")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(LColors.textSecondary)
+            } else {
                 FlowLayout(spacing: 8) {
                     ForEach(items, id: \.self) { item in
                         Text(item)
@@ -190,13 +213,16 @@ struct GrimoireStatusBadge: View {
 
 struct GrimoireImportanceDots: View {
     let value: Int
+    var showsLabel = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("IMPORTANCE")
-                .font(.system(size: 11, weight: .black, design: .rounded))
-                .tracking(1.5)
-                .foregroundStyle(LColors.textSecondary)
+            if showsLabel {
+                Text("IMPORTANCE")
+                    .font(.system(size: 11, weight: .black, design: .rounded))
+                    .tracking(1.5)
+                    .foregroundStyle(LColors.textSecondary)
+            }
 
             HStack(spacing: 6) {
                 ForEach(1...5, id: \.self) { i in
@@ -217,30 +243,225 @@ struct GrimoireImportanceDots: View {
 
 struct GrimoireRelatedEntriesList: View {
     let entries: [GrimoireRelatedEntry]
+    var showsLabel = true
+
+    @Query(sort: \JournalEntry.createdAt, order: .reverse)
+    private var journals: [JournalEntry]
+
+    @Query(sort: \ExperienceEntry.createdAt, order: .reverse)
+    private var experiences: [ExperienceEntry]
+
+    @Query(sort: \WorkingDocumentEntry.createdAt, order: .reverse)
+    private var workingDocuments: [WorkingDocumentEntry]
+
+    @Query(sort: \WorkingResultEntry.createdAt, order: .reverse)
+    private var workingResults: [WorkingResultEntry]
+
+    @Query(sort: \DreamEntry.createdAt, order: .reverse)
+    private var dreams: [DreamEntry]
+
+    @Query(sort: \SynchronicityEntry.createdAt, order: .reverse)
+    private var synchronicities: [SynchronicityEntry]
+
+    @Query(sort: \PathworkEntry.createdAt, order: .reverse)
+    private var pathworks: [PathworkEntry]
+
+    @Query(sort: \MoonPhaseEntry.createdAt, order: .reverse)
+    private var moonPhases: [MoonPhaseEntry]
+
+    @Query(sort: \DeityDevotionEntry.createdAt, order: .reverse)
+    private var deityDevotions: [DeityDevotionEntry]
+
+    @Query(sort: \DivinationEntry.createdAt, order: .reverse)
+    private var divinations: [DivinationEntry]
+
+    @Query(sort: \MeditationEntry.createdAt, order: .reverse)
+    private var meditations: [MeditationEntry]
+
+    @Query(sort: \ShadowWorkEntry.createdAt, order: .reverse)
+    private var shadowWorks: [ShadowWorkEntry]
+
+    @Query(sort: \ManifestationEntry.createdAt, order: .reverse)
+    private var manifestations: [ManifestationEntry]
 
     var body: some View {
-        if !entries.isEmpty {
-            VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 8) {
+            if showsLabel {
                 Text("RELATED ENTRIES")
                     .font(.system(size: 11, weight: .black, design: .rounded))
                     .tracking(1.5)
                     .foregroundStyle(LColors.textSecondary)
+            }
 
+            if entries.isEmpty {
+                Text("No related entries")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .foregroundStyle(LColors.textSecondary)
+            } else {
                 ForEach(entries, id: \.id) { relation in
-                    HStack(spacing: 10) {
-                        Circle()
-                            .fill(relation.relatedEntryType.color)
-                            .frame(width: 8, height: 8)
-                        Text(relation.relatedEntryTitle)
-                            .font(.system(size: 14, weight: .semibold, design: .rounded))
-                            .foregroundStyle(LColors.textPrimary)
-                        Spacer()
-                        Text(relation.relatedEntryType.displayName)
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .foregroundStyle(LColors.textSecondary)
+                    if hasRelatedDestination(for: relation) {
+                        NavigationLink {
+                            relatedDestination(for: relation)
+                        } label: {
+                            relatedEntryRow(relation, isMissing: false)
+                        }
+                        .buttonStyle(.plain)
+                    } else {
+                        relatedEntryRow(relation, isMissing: true)
                     }
-                    .padding(.vertical, 4)
                 }
+            }
+        }
+    }
+
+    private func relatedEntryRow(_ relation: GrimoireRelatedEntry, isMissing: Bool) -> some View {
+        HStack(spacing: 10) {
+            Image(relation.relatedEntryType.icon)
+                .renderingMode(.template)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 18, height: 18)
+                .foregroundStyle(isMissing ? AnyShapeStyle(LColors.textSecondary) : AnyShapeStyle(LGradients.header))
+                .frame(width: 32, height: 32)
+                .background(LColors.glassSurface, in: Circle())
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(relation.relatedEntryTitle)
+                    .font(.system(size: 14, weight: .black, design: .rounded))
+                    .foregroundStyle(isMissing ? LColors.textSecondary : LColors.textPrimary)
+                    .lineLimit(1)
+
+                Text(isMissing ? "Linked entry unavailable" : relation.relatedEntryType.singularName)
+                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                    .foregroundStyle(LColors.textSecondary)
+            }
+
+            Spacer()
+
+            if isMissing == false {
+                Image("rightwavy")
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 14, height: 14)
+                    .foregroundStyle(LGradients.header)
+            }
+        }
+        .padding(.vertical, 4)
+        .contentShape(Rectangle())
+    }
+
+    private func hasRelatedDestination(for relation: GrimoireRelatedEntry) -> Bool {
+        switch relation.relatedEntryType {
+        case .journal:
+            return journals.contains { $0.id == relation.relatedEntryID }
+        case .experience:
+            return experiences.contains { $0.id == relation.relatedEntryID }
+        case .workingDocument:
+            return workingDocuments.contains { $0.id == relation.relatedEntryID }
+        case .workingResult:
+            return workingResults.contains { $0.id == relation.relatedEntryID }
+        case .dream:
+            return dreams.contains { $0.id == relation.relatedEntryID }
+        case .synchronicity:
+            return synchronicities.contains { $0.id == relation.relatedEntryID }
+        case .pathwork:
+            return pathworks.contains { $0.id == relation.relatedEntryID }
+        case .moonPhase:
+            return moonPhases.contains { $0.id == relation.relatedEntryID }
+        case .deityDevotion:
+            return deityDevotions.contains { $0.id == relation.relatedEntryID }
+        case .divination:
+            return divinations.contains { $0.id == relation.relatedEntryID }
+        case .meditation:
+            return meditations.contains { $0.id == relation.relatedEntryID }
+        case .shadowWork:
+            return shadowWorks.contains { $0.id == relation.relatedEntryID }
+        case .manifestation:
+            return manifestations.contains { $0.id == relation.relatedEntryID }
+        }
+    }
+
+    @ViewBuilder
+    private func relatedDestination(for relation: GrimoireRelatedEntry) -> some View {
+        switch relation.relatedEntryType {
+        case .journal:
+            if let entry = journals.first(where: { $0.id == relation.relatedEntryID }) {
+                JournalEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .experience:
+            if let entry = experiences.first(where: { $0.id == relation.relatedEntryID }) {
+                ExperienceEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .workingDocument:
+            if let entry = workingDocuments.first(where: { $0.id == relation.relatedEntryID }) {
+                WorkingDocumentEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .workingResult:
+            if let entry = workingResults.first(where: { $0.id == relation.relatedEntryID }) {
+                WorkingResultEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .dream:
+            if let entry = dreams.first(where: { $0.id == relation.relatedEntryID }) {
+                DreamEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .synchronicity:
+            if let entry = synchronicities.first(where: { $0.id == relation.relatedEntryID }) {
+                SynchronicityEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .pathwork:
+            if let entry = pathworks.first(where: { $0.id == relation.relatedEntryID }) {
+                PathworkEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .moonPhase:
+            if let entry = moonPhases.first(where: { $0.id == relation.relatedEntryID }) {
+                MoonPhaseEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .deityDevotion:
+            if let entry = deityDevotions.first(where: { $0.id == relation.relatedEntryID }) {
+                DeityDevotionEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .divination:
+            if let entry = divinations.first(where: { $0.id == relation.relatedEntryID }) {
+                DivinationEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .meditation:
+            if let entry = meditations.first(where: { $0.id == relation.relatedEntryID }) {
+                MeditationEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .shadowWork:
+            if let entry = shadowWorks.first(where: { $0.id == relation.relatedEntryID }) {
+                ShadowWorkEntryDetail(entry: entry)
+            } else {
+                EmptyView()
+            }
+        case .manifestation:
+            if let entry = manifestations.first(where: { $0.id == relation.relatedEntryID }) {
+                ManifestationEntryDetail(entry: entry)
+            } else {
+                EmptyView()
             }
         }
     }
@@ -253,15 +474,29 @@ struct GrimoireDetailFooter: View {
     let tags: [String]
     let relatedEntries: [GrimoireRelatedEntry]
     let additionalNotes: String
+    private var trimmedAdditionalNotes: String {
+        additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
     var body: some View {
-        let hasContent = importance > 0 || !tags.isEmpty || !relatedEntries.isEmpty || !additionalNotes.isEmpty
-        if hasContent {
-            GrimoireDetailSection {
-                GrimoireImportanceDots(value: importance)
-                GrimoireDetailChips(label: "Tags", items: tags)
-                GrimoireRelatedEntriesList(entries: relatedEntries)
-                GrimoireDetailRow(label: "Additional Notes", value: additionalNotes)
+        Group {
+            GrimoireDetailSection(title: "Importance") {
+                GrimoireImportanceDots(value: importance, showsLabel: false)
+            }
+
+            GrimoireDetailSection(title: "Tags") {
+                GrimoireDetailChips(label: "Tags", items: tags, showsLabel: false)
+            }
+
+            GrimoireDetailSection(title: "Related Entries") {
+                GrimoireRelatedEntriesList(entries: relatedEntries, showsLabel: false)
+            }
+
+            GrimoireDetailSection(title: "Additional Notes") {
+                Text(trimmedAdditionalNotes.isEmpty ? "No additional notes" : trimmedAdditionalNotes)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(trimmedAdditionalNotes.isEmpty ? LColors.textSecondary : LColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
     }

@@ -22,6 +22,7 @@ final class PathworkEntry {
     var resourcesStudying: String = ""
     var reflection: String = ""
     var nextSteps: String = ""
+    var nextStepsList: [String] = []
 
     var importance: Int = 1
     var tags: [String] = []
@@ -74,6 +75,7 @@ final class PathworkEntry {
         resourcesStudying: String = "",
         reflection: String = "",
         nextSteps: String = "",
+        nextStepsList: [String] = [],
         importance: Int = 1,
         tags: [String] = [],
         attachments: [GrimoireAttachment] = [],
@@ -95,6 +97,7 @@ final class PathworkEntry {
         self.resourcesStudying = resourcesStudying
         self.reflection = reflection
         self.nextSteps = nextSteps
+        self.nextStepsList = nextStepsList
         self.importance = importance
         self.tags = tags
         self.additionalNotes = additionalNotes
