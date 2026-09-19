@@ -1,7 +1,6 @@
-
 //
 //  GrimoireRelatedEntriesField.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI

@@ -1,6 +1,6 @@
 //
 //  Planet.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

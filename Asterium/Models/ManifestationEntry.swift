@@ -1,7 +1,6 @@
-
 //
 //  ManifestationEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
@@ -12,14 +11,27 @@ final class ManifestationEntry {
     var id: UUID = UUID()
     var title: String = ""
     var dateStarted: Date = Date()
+    var manifestationType: String = ""
+    var customManifestationType: String = ""
+    var manifestationMethods: [String] = []
+    var customManifestationMethod: String = ""
+    var timeframe: String = "No Deadline"
+    var specificTimeframeDate: Date = Date()
     var desire: String = ""
     var whyItMatters: String = ""
     var intention: String = ""
+    var intentionItems: [String] = []
     var visualization: String = ""
+    var desiredRealityItems: [String] = []
     var inspiredActions: String = ""
+    var inspiredActionItems: [String] = []
     var obstacles: String = ""
+    var obstacleItems: [String] = []
     var evidenceOfProgress: String = ""
+    var evidenceItems: [String] = []
     var manifestationStatusRawValue: String = ManifestationStatus.inProgress.rawValue
+    var manifestedDate: Date = Date()
+    var outcome: String = ""
     var reflection: String = ""
 
     var importance: Int = 1
@@ -63,14 +75,27 @@ final class ManifestationEntry {
         id: UUID = UUID(),
         title: String,
         dateStarted: Date = .now,
+        manifestationType: String = "",
+        customManifestationType: String = "",
+        manifestationMethods: [String] = [],
+        customManifestationMethod: String = "",
+        timeframe: String = "No Deadline",
+        specificTimeframeDate: Date = .now,
         desire: String = "",
         whyItMatters: String = "",
         intention: String = "",
+        intentionItems: [String] = [],
         visualization: String = "",
+        desiredRealityItems: [String] = [],
         inspiredActions: String = "",
+        inspiredActionItems: [String] = [],
         obstacles: String = "",
+        obstacleItems: [String] = [],
         evidenceOfProgress: String = "",
+        evidenceItems: [String] = [],
         manifestationStatus: ManifestationStatus = .inProgress,
+        manifestedDate: Date = .now,
+        outcome: String = "",
         reflection: String = "",
         importance: Int = 1,
         tags: [String] = [],
@@ -83,14 +108,27 @@ final class ManifestationEntry {
         self.id = id
         self.title = title
         self.dateStarted = dateStarted
+        self.manifestationType = manifestationType
+        self.customManifestationType = customManifestationType
+        self.manifestationMethods = manifestationMethods
+        self.customManifestationMethod = customManifestationMethod
+        self.timeframe = timeframe
+        self.specificTimeframeDate = specificTimeframeDate
         self.desire = desire
         self.whyItMatters = whyItMatters
         self.intention = intention
+        self.intentionItems = intentionItems
         self.visualization = visualization
+        self.desiredRealityItems = desiredRealityItems
         self.inspiredActions = inspiredActions
+        self.inspiredActionItems = inspiredActionItems
         self.obstacles = obstacles
+        self.obstacleItems = obstacleItems
         self.evidenceOfProgress = evidenceOfProgress
+        self.evidenceItems = evidenceItems
         self.manifestationStatusRawValue = manifestationStatus.rawValue
+        self.manifestedDate = manifestedDate
+        self.outcome = outcome
         self.reflection = reflection
         self.importance = importance
         self.tags = tags

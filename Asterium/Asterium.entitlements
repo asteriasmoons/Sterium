@@ -7,10 +7,15 @@
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
 		<string>iCloud.im.lystaria.Asterium</string>
+		<string>iCloud.im.lystaria.Voxiverse</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
 		<string>CloudKit</string>
+	</array>
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.asteriasmoons.Sterium</string>
 	</array>
 </dict>
 </plist>

@@ -1,7 +1,6 @@
-
 //
 //  JournalEntryForm.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -81,22 +80,14 @@ struct JournalEntryForm: View {
                     }
                 }
                 .padding(.horizontal, LSpacing.pageHorizontal)
-                .padding(.bottom, 40)
+                .padding(.bottom, 120)
             }
-            .scrollDismissesKeyboard(.immediately)
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil,
-                        from: nil,
-                        for: nil
-                    )
-                }
-            )
-            .background { AsteriumBackground() }
+            .scrollDismissesKeyboard(.never)
+            .grimoireFormBackground()
             .toolbar(.hidden, for: .navigationBar)
         }
+        .presentationDetents([.large])
+        .presentationContentInteraction(.scrolls)
     }
 
     private func save() {

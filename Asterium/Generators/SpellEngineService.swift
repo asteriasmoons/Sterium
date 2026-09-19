@@ -1,9 +1,10 @@
 //
 //  SpellEngineService.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
+import SwiftData
 
 enum SpellCategory: String, CaseIterable, Codable, Identifiable {
     case protectionCleansing
@@ -162,6 +163,7 @@ enum SpellEngineServiceError: LocalizedError {
     }
 }
 
+@MainActor
 final class SpellEngineService {
     private struct BackendError: Decodable {
         let error: String
@@ -188,7 +190,8 @@ final class SpellEngineService {
         intention: String,
         level: PractitionerLevel,
         context: String,
-        refresh: Bool = false
+        refresh: Bool = false,
+        modelContext: ModelContext
     ) async throws -> SpellEntryResponse {
         guard let url = URL(string: "\(baseURL)/api/spells/generate") else {
             throw SpellEngineServiceError.invalidURL
@@ -221,12 +224,13 @@ final class SpellEngineService {
         }
 
         let spell = try JSONDecoder().decode(SpellEntryResponse.self, from: data)
-        save(spell, category: category)
+        save(spell, category: category, modelContext: modelContext)
         return spell
     }
 
     func fetchSavedSpells(
-        for category: SpellCategory
+        for category: SpellCategory,
+        modelContext: ModelContext
     ) async throws -> [SpellEntryResponse] {
         guard let url = URL(string: "\(baseURL)/api/spells/\(category.backendValue)") else {
             throw SpellEngineServiceError.invalidURL
@@ -246,45 +250,186 @@ final class SpellEngineService {
         }
 
         let spells = try JSONDecoder().decode(SpellListResponse.self, from: data).spells
-        save(spells, category: category)
-        return spells
+        for spell in spells {
+            save(spell, category: category, modelContext: modelContext)
+        }
+        return savedSpells(for: category, modelContext: modelContext)
     }
 
-    func savedSpells(for category: SpellCategory) -> [SpellEntryResponse] {
-        guard let data = userDefaults.data(forKey: savedKey(for: category)),
-              let spells = try? JSONDecoder().decode([SpellEntryResponse].self, from: data)
-        else {
-            return []
-        }
-
-        return spells.sorted {
-            ($0.updatedAt ?? $0.createdAt ?? "") > ($1.updatedAt ?? $1.createdAt ?? "")
-        }
+    func savedSpells(
+        for category: SpellCategory,
+        modelContext: ModelContext
+    ) -> [SpellEntryResponse] {
+        migrateLegacySpellsIfNeeded(for: category, modelContext: modelContext)
+        return savedSpellsWithoutMigration(for: category, modelContext: modelContext)
+            .map { $0.spell }
+            .sorted {
+                ($0.updatedAt ?? $0.createdAt ?? "") > ($1.updatedAt ?? $1.createdAt ?? "")
+            }
     }
 
-    func save(_ spell: SpellEntryResponse, category: SpellCategory) {
-        var spells = savedSpells(for: category)
-        spells.removeAll {
-            $0.title.caseInsensitiveCompare(spell.title) == .orderedSame &&
-                $0.intention.caseInsensitiveCompare(spell.intention) == .orderedSame
-        }
-        spells.insert(spell, at: 0)
-        save(spells, category: category)
-    }
+    func save(
+        _ spell: SpellEntryResponse,
+        category: SpellCategory,
+        modelContext: ModelContext
+    ) {
+        migrateLegacySpellsIfNeeded(for: category, modelContext: modelContext)
+        let existing = savedSpellsWithoutMigration(for: category, modelContext: modelContext)
 
-    private func save(_ spells: [SpellEntryResponse], category: SpellCategory) {
-        guard let data = try? JSONEncoder().encode(spells) else {
+        if let existingCustomSpell = existing.first(where: {
+            $0.spell.title.caseInsensitiveCompare(spell.title) == .orderedSame &&
+            $0.spell.intention.caseInsensitiveCompare(spell.intention) == .orderedSame &&
+            $0.spell.source.caseInsensitiveCompare("custom") == .orderedSame &&
+            spell.source.caseInsensitiveCompare("custom") != .orderedSame
+        }) {
+            removeMatchingRecords(
+                title: spell.title,
+                intention: spell.intention,
+                category: category,
+                keeping: existingCustomSpell.record,
+                modelContext: modelContext
+            )
+            try? modelContext.save()
             return
         }
 
-        userDefaults.set(data, forKey: savedKey(for: category))
+        removeMatchingRecords(
+            title: spell.title,
+            intention: spell.intention,
+            category: category,
+            keeping: nil,
+            modelContext: modelContext
+        )
+        insert(spell, category: category, modelContext: modelContext)
+        try? modelContext.save()
+    }
+
+    func saveCustom(
+        _ spell: SpellEntryResponse,
+        category: SpellCategory,
+        modelContext: ModelContext
+    ) {
+        save(spell, category: category, modelContext: modelContext)
+    }
+
+    func replace(
+        originalSpell: SpellEntryResponse,
+        with updatedSpell: SpellEntryResponse,
+        category: SpellCategory,
+        modelContext: ModelContext
+    ) {
+        removeMatchingRecords(
+            title: originalSpell.title,
+            intention: originalSpell.intention,
+            category: category,
+            keeping: nil,
+            modelContext: modelContext
+        )
+        save(updatedSpell, category: category, modelContext: modelContext)
+    }
+
+    func delete(
+        _ spell: SpellEntryResponse,
+        category: SpellCategory,
+        modelContext: ModelContext
+    ) {
+        removeMatchingRecords(
+            title: spell.title,
+            intention: spell.intention,
+            category: category,
+            keeping: nil,
+            modelContext: modelContext
+        )
+        try? modelContext.save()
+    }
+
+    private func savedSpellsWithoutMigration(
+        for category: SpellCategory,
+        modelContext: ModelContext
+    ) -> [(record: SavedSpellRecord, spell: SpellEntryResponse)] {
+        let categoryValue = category.backendValue
+        let descriptor = FetchDescriptor<SavedSpellRecord>(
+            predicate: #Predicate { $0.category == categoryValue }
+        )
+        return ((try? modelContext.fetch(descriptor)) ?? []).compactMap { record in
+            guard let spell = try? JSONDecoder().decode(
+                SpellEntryResponse.self,
+                from: record.payload
+            ) else {
+                return nil
+            }
+            return (record, spell)
+        }
+    }
+
+    private func insert(
+        _ spell: SpellEntryResponse,
+        category: SpellCategory,
+        modelContext: ModelContext
+    ) {
+        guard let payload = try? JSONEncoder().encode(spell) else { return }
+        modelContext.insert(
+            SavedSpellRecord(
+                category: category.backendValue,
+                intention: spell.intention,
+                title: spell.title,
+                source: spell.source,
+                updatedAt: spell.updatedAt ?? spell.createdAt ?? "",
+                payload: payload
+            )
+        )
+    }
+
+    private func removeMatchingRecords(
+        title: String,
+        intention: String,
+        category: SpellCategory,
+        keeping recordToKeep: SavedSpellRecord?,
+        modelContext: ModelContext
+    ) {
+        for item in savedSpellsWithoutMigration(for: category, modelContext: modelContext)
+        where item.spell.title.caseInsensitiveCompare(title) == .orderedSame &&
+              item.spell.intention.caseInsensitiveCompare(intention) == .orderedSame {
+            if item.record !== recordToKeep {
+                modelContext.delete(item.record)
+            }
+        }
+    }
+
+    private func migrateLegacySpellsIfNeeded(
+        for category: SpellCategory,
+        modelContext: ModelContext
+    ) {
+        let key = savedKey(for: category)
+        guard let data = userDefaults.data(forKey: key),
+              let spells = try? JSONDecoder().decode([SpellEntryResponse].self, from: data)
+        else {
+            return
+        }
+
+        for spell in spells {
+            let exists = savedSpellsWithoutMigration(for: category, modelContext: modelContext).contains {
+                $0.spell.title.caseInsensitiveCompare(spell.title) == .orderedSame &&
+                $0.spell.intention.caseInsensitiveCompare(spell.intention) == .orderedSame
+            }
+            if exists == false {
+                insert(spell, category: category, modelContext: modelContext)
+            }
+        }
+
+        do {
+            try modelContext.save()
+            userDefaults.removeObject(forKey: key)
+        } catch {
+            // Keep the legacy copy until SwiftData successfully saves it.
+        }
     }
 
     private func savedKey(for category: SpellCategory) -> String {
         "\(Self.savedPrefix)\(category.backendValue)"
     }
 
-    private static var defaultBaseURL: String {
+    nonisolated private static var defaultBaseURL: String {
         if let configuredURL = Bundle.main.object(
             forInfoDictionaryKey: "API_BASE_URL"
         ) as? String,

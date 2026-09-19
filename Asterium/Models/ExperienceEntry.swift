@@ -1,7 +1,6 @@
-
 //
 //  ExperienceEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

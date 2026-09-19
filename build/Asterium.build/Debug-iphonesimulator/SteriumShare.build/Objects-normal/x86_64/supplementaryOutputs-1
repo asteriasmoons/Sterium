@@ -1,0 +1,23 @@
+{
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/CustomGrimoireModels.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/CustomGrimoireModels.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/CustomGrimoireModels.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/CustomGrimoireModels.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/CustomGrimoireModels.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/CustomGrimoireModels.swiftdeps"
+  },
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/DeityDevotionEntry.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DeityDevotionEntry.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DeityDevotionEntry.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DeityDevotionEntry.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DeityDevotionEntry.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DeityDevotionEntry.swiftdeps"
+  },
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/DivinationEntry.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DivinationEntry.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DivinationEntry.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DivinationEntry.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DivinationEntry.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/DivinationEntry.swiftdeps"
+  }
+}

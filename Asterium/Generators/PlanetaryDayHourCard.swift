@@ -1,6 +1,6 @@
 //
 //  PlanetaryDayHourCard.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI

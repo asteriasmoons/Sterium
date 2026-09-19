@@ -1,0 +1,23 @@
+{
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/GrimoireCustomFilter.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireCustomFilter.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireCustomFilter.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireCustomFilter.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireCustomFilter.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireCustomFilter.swiftdeps"
+  },
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/GrimoireSharedModels.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireSharedModels.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireSharedModels.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireSharedModels.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireSharedModels.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GrimoireSharedModels.swiftdeps"
+  },
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/JournalEntry.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/JournalEntry.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/JournalEntry.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/JournalEntry.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/JournalEntry.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/JournalEntry.swiftdeps"
+  }
+}

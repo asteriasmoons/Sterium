@@ -1,7 +1,6 @@
-
 //
 //  SynchronicityEntryForm.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -15,7 +14,7 @@ struct SynchronicityEntryForm: View {
 
     @State private var title: String
     @State private var dateTime: Date
-    @State private var category: String
+    @State private var categorySelections: Set<String>
     @State private var whatHappened: String
     @State private var location: String
     @State private var emotionalState: String
@@ -30,11 +29,62 @@ struct SynchronicityEntryForm: View {
     @State private var relatedEntries: [GrimoireRelatedEntry]
     @State private var additionalNotes: String
 
+    private static let categoryOptions = [
+        "Numbers",
+        "Animals",
+        "Dreams",
+        "Words & Phrases",
+        "Symbols",
+        "People",
+        "Conversations",
+        "Music",
+        "Media",
+        "Objects",
+        "Places",
+        "Events",
+        "Timing",
+        "Nature",
+        "Divination",
+        "Manifestation",
+        "Deity / Spirit",
+        "Repeated Pattern",
+        "Intuition",
+        "Other"
+    ]
+
+    private static let emotionalStateOptions = [
+        "Calm",
+        "Curious",
+        "Excited",
+        "Happy",
+        "Hopeful",
+        "Inspired",
+        "Grateful",
+        "Grounded",
+        "Reflective",
+        "Thoughtful",
+        "Surprised",
+        "Amazed",
+        "Comforted",
+        "Reassured",
+        "Connected",
+        "Peaceful",
+        "Energized",
+        "Confused",
+        "Uncertain",
+        "Uneasy",
+        "Anxious",
+        "Overwhelmed",
+        "Sad",
+        "Emotional",
+        "Neutral"
+    ]
+
     init(existing: SynchronicityEntry? = nil) {
         self.existing = existing
         _title = State(initialValue: existing?.title ?? "")
         _dateTime = State(initialValue: existing?.dateTime ?? .now)
-        _category = State(initialValue: existing?.category ?? "")
+        _categorySelections = State(initialValue: Self.categorySelections(from: existing?.category ?? ""))
         _whatHappened = State(initialValue: existing?.whatHappened ?? "")
         _location = State(initialValue: existing?.location ?? "")
         _emotionalState = State(initialValue: existing?.emotionalState ?? "")
@@ -75,7 +125,11 @@ struct SynchronicityEntryForm: View {
 
                     AsteriumDateField(title: "Date & Time", date: $dateTime, includesTime: true)
 
-                    AsteriumTextField(title: "Category", placeholder: "e.g. Numbers, Animals, Dreams...", text: $category)
+                    AsteriumMultiSelectPickerField(
+                        title: "Category",
+                        options: Self.categoryOptions,
+                        selections: $categorySelections
+                    )
 
                     AsteriumTextEditor(
                         title: "What Happened",
@@ -85,7 +139,11 @@ struct SynchronicityEntryForm: View {
 
                     AsteriumTextField(title: "Location", placeholder: "Where it happened...", text: $location)
 
-                    AsteriumTextField(title: "Emotional State", placeholder: "How you felt...", text: $emotionalState)
+                    AsteriumPickerField(
+                        title: "Emotional State",
+                        options: Self.emotionalStateOptions,
+                        selection: $emotionalState
+                    )
 
                     AsteriumTextEditor(
                         title: "Possible Meaning",
@@ -116,22 +174,14 @@ struct SynchronicityEntryForm: View {
                     }
                 }
                 .padding(.horizontal, LSpacing.pageHorizontal)
-                .padding(.bottom, 40)
+                .padding(.bottom, 120)
             }
-            .scrollDismissesKeyboard(.immediately)
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil,
-                        from: nil,
-                        for: nil
-                    )
-                }
-            )
-            .background { AsteriumBackground() }
+            .scrollDismissesKeyboard(.never)
+            .grimoireFormBackground()
             .toolbar(.hidden, for: .navigationBar)
         }
+        .presentationDetents([.large])
+        .presentationContentInteraction(.scrolls)
     }
 
     private var confidencePicker: some View {
@@ -172,7 +222,7 @@ struct SynchronicityEntryForm: View {
         if let existing {
             existing.title = title
             existing.dateTime = dateTime
-            existing.category = category
+            existing.category = Self.categoryString(from: categorySelections)
             existing.whatHappened = whatHappened
             existing.location = location
             existing.emotionalState = emotionalState
@@ -190,7 +240,7 @@ struct SynchronicityEntryForm: View {
             let entry = SynchronicityEntry(
                 title: title,
                 dateTime: dateTime,
-                category: category,
+                category: Self.categoryString(from: categorySelections),
                 whatHappened: whatHappened,
                 location: location,
                 emotionalState: emotionalState,
@@ -209,5 +259,25 @@ struct SynchronicityEntryForm: View {
             modelContext.insert(entry)
         }
         dismiss()
+    }
+
+    private static func categorySelections(from rawValue: String) -> Set<String> {
+        let savedValues = rawValue
+            .split(separator: ",")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        let matchingValues = savedValues.filter { categoryOptions.contains($0) }
+        if matchingValues.isEmpty && !rawValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return ["Other"]
+        }
+
+        return Set(matchingValues)
+    }
+
+    private static func categoryString(from selections: Set<String>) -> String {
+        categoryOptions
+            .filter { selections.contains($0) }
+            .joined(separator: ", ")
     }
 }

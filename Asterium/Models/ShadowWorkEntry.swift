@@ -1,7 +1,6 @@
-
 //
 //  ShadowWorkEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
@@ -16,9 +15,10 @@ final class ShadowWorkEntry {
     var trigger: String = ""
     var emotions: [String] = []
     var limitingBelief: String = ""
-    var rootCause: String = ""
+    var originsInfluences: [String] = []
+    var whatThisRevealed: String = ""
     var newPerspective: String = ""
-    var actionToPractice: String = ""
+    var actionsToPractice: [String] = []
     var affirmation: String = ""
     var reflection: String = ""
 
@@ -62,9 +62,10 @@ final class ShadowWorkEntry {
         trigger: String = "",
         emotions: [String] = [],
         limitingBelief: String = "",
-        rootCause: String = "",
+        originsInfluences: [String] = [],
+        whatThisRevealed: String = "",
         newPerspective: String = "",
-        actionToPractice: String = "",
+        actionsToPractice: [String] = [],
         affirmation: String = "",
         reflection: String = "",
         importance: Int = 1,
@@ -82,9 +83,10 @@ final class ShadowWorkEntry {
         self.trigger = trigger
         self.emotions = emotions
         self.limitingBelief = limitingBelief
-        self.rootCause = rootCause
+        self.originsInfluences = originsInfluences
+        self.whatThisRevealed = whatThisRevealed
         self.newPerspective = newPerspective
-        self.actionToPractice = actionToPractice
+        self.actionsToPractice = actionsToPractice
         self.affirmation = affirmation
         self.reflection = reflection
         self.importance = importance

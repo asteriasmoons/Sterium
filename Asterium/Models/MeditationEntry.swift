@@ -1,7 +1,6 @@
-
 //
 //  MeditationEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
@@ -14,8 +13,12 @@ final class MeditationEntry {
     var date: Date = Date()
     var durationMinutes: Int = 0
     var technique: String = ""
+    var customTechnique: String = ""
+    var meditationKind: String = ""
+    var customKind: String = ""
     var intention: String = ""
     var environment: String = ""
+    var environmentType: String = ""
     var beforeMeditation: String = ""
     var duringMeditation: String = ""
     var afterMeditation: String = ""
@@ -54,14 +57,56 @@ final class MeditationEntry {
         }
     }
 
+    var intentionItems: [String] {
+        get {
+            intention
+                .components(separatedBy: "\n")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+        }
+        set {
+            intention = newValue
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+                .joined(separator: "\n")
+        }
+    }
+
+    var followUpItems: [String] {
+        get {
+            followUp
+                .components(separatedBy: "\n")
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+        }
+        set {
+            followUp = newValue
+                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+                .filter { !$0.isEmpty }
+                .joined(separator: "\n")
+        }
+    }
+
+    var techniqueDisplay: String {
+        displaySelection(technique, customValue: customTechnique)
+    }
+
+    var meditationKindDisplay: String {
+        displaySelection(meditationKind, customValue: customKind)
+    }
+
     init(
         id: UUID = UUID(),
         title: String,
         date: Date = .now,
         durationMinutes: Int = 0,
         technique: String = "",
+        customTechnique: String = "",
+        meditationKind: String = "",
+        customKind: String = "",
         intention: String = "",
         environment: String = "",
+        environmentType: String = "",
         beforeMeditation: String = "",
         duringMeditation: String = "",
         afterMeditation: String = "",
@@ -80,8 +125,12 @@ final class MeditationEntry {
         self.date = date
         self.durationMinutes = durationMinutes
         self.technique = technique
+        self.customTechnique = customTechnique
+        self.meditationKind = meditationKind
+        self.customKind = customKind
         self.intention = intention
         self.environment = environment
+        self.environmentType = environmentType
         self.beforeMeditation = beforeMeditation
         self.duringMeditation = duringMeditation
         self.afterMeditation = afterMeditation
@@ -102,5 +151,19 @@ final class MeditationEntry {
         for relation in relatedEntries {
             relation.meditationEntry = self
         }
+    }
+
+    private func displaySelection(_ rawValue: String, customValue: String) -> String {
+        rawValue
+            .split(separator: "|")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+            .map { value in
+                if value == "Custom", !customValue.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    return customValue.trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                return value
+            }
+            .joined(separator: ", ")
     }
 }

@@ -1,7 +1,6 @@
-
 //
 //  WorkingDocumentEntryDetail.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -13,7 +12,7 @@ struct WorkingDocumentEntryDetail: View {
     var body: some View {
         GrimoireDetailScaffold(eyebrow: "Working Document", title: entry.title, onEdit: { showingEdit = true }) {
                     GrimoireDetailSection(title: "Date & Time") {
-                        GrimoireDetailRow(label: "Date & Time", value: entry.dateTime.formatted(date: .long, time: .shortened))
+                        detailValue(entry.dateTime.formatted(date: .long, time: .shortened))
                     }
 
                     GrimoireDetailSection(title: "Details") {
@@ -61,19 +60,19 @@ struct WorkingDocumentEntryDetail: View {
                     }
 
                     GrimoireDetailSection(title: "Planetary Day") {
-                        GrimoireDetailRow(label: "Planetary Day", value: entry.planetaryDay)
+                        detailValue(entry.planetaryDay)
                     }
 
                     GrimoireDetailSection(title: "Deity") {
-                        GrimoireDetailRow(label: "Deity", value: entry.deity ?? "")
+                        detailValue(entry.deity ?? "")
                     }
 
                     GrimoireDetailSection(title: "Location") {
-                        GrimoireDetailRow(label: "Location", value: entry.location)
+                        detailValue(entry.location)
                     }
 
                     GrimoireDetailSection(title: "Preparation Notes") {
-                        GrimoireDetailRow(label: "Preparation Notes", value: entry.preparationNotes)
+                        detailValue(entry.preparationNotes)
                     }
 
                     if !entry.procedureSteps.isEmpty {
@@ -123,9 +122,14 @@ struct WorkingDocumentEntryDetail: View {
                         GrimoireDetailChips(label: "Tags", items: entry.tags, showsLabel: false)
                     }
 
-                    GrimoireDetailSection(title: "Related Entries") {
-                        GrimoireRelatedEntriesList(entries: entry.relatedEntries, showsLabel: false)
+                    if !entry.attachments.isEmpty {
+                        GrimoireDetailSection(title: "Attachments") {
+                            GrimoireAttachmentGallery(attachments: entry.attachments)
+                        }
                     }
+
+
+                    GrimoireRelatedEntriesList(entries: entry.relatedEntries)
 
                     GrimoireDetailSection(title: "Additional Notes") {
                         Text(entry.additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "No additional notes" : entry.additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -137,5 +141,12 @@ struct WorkingDocumentEntryDetail: View {
         .asteriumAdaptivePresentation(isPresented: $showingEdit) {
                 WorkingDocumentEntryForm(existing: entry)
         }
+    }
+
+    private func detailValue(_ value: String) -> some View {
+        Text(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "No details" : value)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? LColors.textSecondary : LColors.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

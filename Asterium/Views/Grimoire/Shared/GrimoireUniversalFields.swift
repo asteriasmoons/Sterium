@@ -1,7 +1,6 @@
-
 //
 //  GrimoireUniversalFields.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -12,10 +11,13 @@ struct GrimoireUniversalFields: View {
     @Binding var attachments: [GrimoireAttachment]
     @Binding var relatedEntries: [GrimoireRelatedEntry]
     @Binding var additionalNotes: String
+    var showsSectionTitle = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: LSpacing.sectionGap) {
-            AsteriumSectionHeader(title: "Details")
+            if showsSectionTitle {
+                AsteriumSectionHeader(title: "Details")
+            }
 
             GrimoireImportancePicker(importance: $importance)
 

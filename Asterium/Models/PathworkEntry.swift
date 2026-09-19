@@ -1,11 +1,39 @@
-
 //
 //  PathworkEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
 import SwiftData
+
+struct PathworkStudySource: Codable, Equatable, Identifiable {
+    var id: UUID = UUID()
+    var label: String
+    var link: String
+}
+
+struct PathworkStudyResource: Codable, Equatable, Identifiable {
+    var id: UUID = UUID()
+    var name: String
+    var types: [String]
+    var sources: [PathworkStudySource]
+    var learned: [String]
+}
+
+private enum PathworkStudyResourceCoding {
+    static let prefix = "asterium-pathwork-resources-v1:"
+
+    static func decode(_ value: String) -> [PathworkStudyResource]? {
+        guard value.hasPrefix(prefix),
+              let data = Data(base64Encoded: String(value.dropFirst(prefix.count))) else { return nil }
+        return try? JSONDecoder().decode([PathworkStudyResource].self, from: data)
+    }
+
+    static func encode(_ resources: [PathworkStudyResource]) -> String {
+        guard let data = try? JSONEncoder().encode(resources) else { return "" }
+        return prefix + data.base64EncodedString()
+    }
+}
 
 @Model
 final class PathworkEntry {
@@ -39,6 +67,20 @@ final class PathworkEntry {
     var currentStatus: PathworkStatus {
         get { PathworkStatus(rawValue: currentStatusRawValue) ?? .exploring }
         set { currentStatusRawValue = newValue.rawValue }
+    }
+
+    var studyingResources: [PathworkStudyResource] {
+        get {
+            if let decoded = PathworkStudyResourceCoding.decode(resourcesStudying) {
+                return decoded
+            }
+            let legacy = resourcesStudying.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !legacy.isEmpty else { return [] }
+            return [PathworkStudyResource(name: legacy, types: [], sources: [], learned: [])]
+        }
+        set {
+            resourcesStudying = PathworkStudyResourceCoding.encode(newValue)
+        }
     }
 
     var attachments: [GrimoireAttachment] {

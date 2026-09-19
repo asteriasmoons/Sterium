@@ -1,7 +1,6 @@
-
 //
 //  GrimoireView.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -14,6 +13,13 @@ struct GrimoireListItem: Identifiable {
     let title: String
     let type: GrimoireEntryType
     let createdAt: Date
+    var customTemplateID: UUID? = nil
+    var customTypeName: String? = nil
+    var customIconName: String? = nil
+
+    var isCustom: Bool { customTemplateID != nil }
+    var displayTypeName: String { customTypeName ?? type.singularName }
+    var displayIconName: String { customIconName ?? type.icon }
 }
 
 // MARK: - Grimoire View
@@ -62,6 +68,12 @@ struct GrimoireView: View {
     @Query(sort: \ManifestationEntry.createdAt, order: .reverse)
     private var manifestations: [ManifestationEntry]
 
+    @Query(sort: \CustomGrimoireEntry.createdAt, order: .reverse)
+    private var customEntries: [CustomGrimoireEntry]
+
+    @Query(sort: \GrimoireCustomFilter.createdAt, order: .reverse)
+    private var customFilters: [GrimoireCustomFilter]
+
     // MARK: State
 
     @State private var searchText = ""
@@ -69,6 +81,11 @@ struct GrimoireView: View {
     @State private var showingNewEntryPicker = false
     @State private var showingNewEntryForm = false
     @State private var selectedNewEntryType: GrimoireEntryType?
+    @State private var selectedCustomTemplate: CustomGrimoireTemplate?
+    @State private var selectedCustomFilterID: UUID?
+    @State private var showingCustomTemplateLibrary = false
+    @State private var openCustomTemplateLibraryAfterPicker = false
+    @State private var showingNewCustomFilter = false
 
     // MARK: Computed
 
@@ -114,6 +131,17 @@ struct GrimoireView: View {
         for e in manifestations {
             items.append(GrimoireListItem(id: e.id, title: e.title, type: .manifestation, createdAt: e.createdAt))
         }
+        for e in customEntries {
+            items.append(GrimoireListItem(
+                id: e.id,
+                title: e.title,
+                type: .experience,
+                createdAt: e.createdAt,
+                customTemplateID: e.templateID,
+                customTypeName: e.templateName,
+                customIconName: e.templateIconName
+            ))
+        }
 
         return items
     }
@@ -122,7 +150,11 @@ struct GrimoireView: View {
         var items = allItems
 
         if let filter = selectedFilter {
-            items = items.filter { $0.type == filter }
+            items = items.filter { !$0.isCustom && $0.type == filter }
+        } else if let customFilterID = selectedCustomFilterID,
+                  let customFilter = customFilters.first(where: { $0.id == customFilterID }) {
+            let types = Set(customFilter.entryTypes)
+            items = items.filter { types.contains($0.type) }
         }
 
         if !searchText.isEmpty {
@@ -159,7 +191,7 @@ struct GrimoireView: View {
 
                     searchBar
 
-                    filterChips
+                    filterControls
 
                     if filteredItems.isEmpty {
                         emptyState
@@ -172,15 +204,31 @@ struct GrimoireView: View {
             }
             .scrollIndicators(.hidden)
             .asteriumAdaptivePresentation(isPresented: $showingNewEntryPicker) {
-                GrimoireNewEntryPicker { type in
-                    selectedNewEntryType = type
-                }
+                GrimoireNewEntryPicker(
+                    onSelect: { type in selectedNewEntryType = type },
+                    onSelectCustom: { template in selectedCustomTemplate = template },
+                    onManageCustom: { openCustomTemplateLibraryAfterPicker = true }
+                )
             }
             .asteriumAdaptivePresentation(isPresented: $showingNewEntryForm) {
                 newEntryFormView
             }
+            .asteriumAdaptivePresentation(isPresented: $showingCustomTemplateLibrary) {
+                CustomGrimoireTemplateLibrary()
+            }
+            .asteriumAdaptivePresentation(isPresented: $showingNewCustomFilter) {
+                GrimoireCustomFilterForm { newFilter in
+                    selectedFilter = nil
+                    selectedCustomFilterID = newFilter.id
+                }
+            }
             .onChange(of: showingNewEntryPicker) { _, isShowing in
-                if !isShowing, selectedNewEntryType != nil {
+                if !isShowing, openCustomTemplateLibraryAfterPicker {
+                    openCustomTemplateLibraryAfterPicker = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                        showingCustomTemplateLibrary = true
+                    }
+                } else if !isShowing, (selectedNewEntryType != nil || selectedCustomTemplate != nil) {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
                         showingNewEntryForm = true
                     }
@@ -189,6 +237,7 @@ struct GrimoireView: View {
             .onChange(of: showingNewEntryForm) { _, isShowing in
                 if !isShowing {
                     selectedNewEntryType = nil
+                    selectedCustomTemplate = nil
                 }
             }
         }
@@ -217,46 +266,87 @@ struct GrimoireView: View {
         }
     }
 
-    // MARK: - Filter Chips
+    // MARK: - Filter Controls
 
-    private var filterChips: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                filterChip(label: "All", isSelected: selectedFilter == nil) {
-                    selectedFilter = nil
-                }
-
-                ForEach(GrimoireEntryType.allCases, id: \.self) { type in
-                    filterChip(label: type.displayName, isSelected: selectedFilter == type) {
-                        selectedFilter = type
-                    }
-                }
-            }
-        }
+    private var entryTypeOptions: [String] {
+        ["All"] + GrimoireEntryType.allCases.map(\.displayName)
     }
 
-    private func filterChip(label: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundStyle(isSelected ? LColors.bg : LColors.textPrimary)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 8)
-                .background {
-                    if isSelected {
-                        Capsule(style: .continuous)
-                            .fill(LGradients.header)
-                    } else {
-                        Capsule(style: .continuous)
-                            .fill(LColors.glassSurface)
-                            .overlay {
-                                Capsule(style: .continuous)
-                                    .strokeBorder(LColors.glassBorder, lineWidth: 1)
-                            }
-                    }
+    private var entryTypeSelection: Binding<String> {
+        Binding(
+            get: { selectedFilter?.displayName ?? "All" },
+            set: { newValue in
+                if newValue == "All" {
+                    selectedFilter = nil
+                } else {
+                    selectedFilter = GrimoireEntryType.allCases.first { $0.displayName == newValue }
                 }
+                selectedCustomFilterID = nil
+            }
+        )
+    }
+
+    private var customFilterOptions: [String] {
+        ["None"] + customFilters.map(\.name)
+    }
+
+    private var customFilterSelection: Binding<String> {
+        Binding(
+            get: {
+                if let id = selectedCustomFilterID,
+                   let filter = customFilters.first(where: { $0.id == id }) {
+                    return filter.name
+                }
+                return "None"
+            },
+            set: { newValue in
+                if newValue == "None" {
+                    selectedCustomFilterID = nil
+                } else if let filter = customFilters.first(where: { $0.name == newValue }) {
+                    selectedCustomFilterID = filter.id
+                    selectedFilter = nil
+                }
+            }
+        )
+    }
+
+    private var filterControls: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            AsteriumPickerField(
+                title: "",
+                options: entryTypeOptions,
+                selection: entryTypeSelection
+            )
+            .frame(maxWidth: .infinity)
+
+            HStack(alignment: .top, spacing: 8) {
+                AsteriumPickerField(
+                    title: "",
+                    options: customFilterOptions,
+                    selection: customFilterSelection
+                )
+                .frame(maxWidth: .infinity)
+
+                Button {
+                    showingNewCustomFilter = true
+                } label: {
+                    Image("addwavy")
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
+                        .foregroundStyle(LGradients.header)
+                        .frame(width: 48, height: 48)
+                        .background(LColors.glassSurface, in: RoundedRectangle(cornerRadius: LSpacing.inputRadius))
+                        .overlay {
+                            RoundedRectangle(cornerRadius: LSpacing.inputRadius)
+                                .strokeBorder(LColors.glassBorder, lineWidth: 1)
+                        }
+                }
+                .buttonStyle(.plain)
+            }
+            .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.plain)
     }
 
     // MARK: - Entry List
@@ -276,7 +366,7 @@ struct GrimoireView: View {
                     destinationView(for: item)
                 } label: {
                     HStack(alignment: .top, spacing: 12) {
-                        Image(item.type.icon)
+                        Image(item.displayIconName)
                             .renderingMode(.template)
                             .resizable()
                             .scaledToFit()
@@ -295,7 +385,7 @@ struct GrimoireView: View {
                                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                                 .foregroundStyle(LColors.textSecondary)
 
-                            Text(item.type.singularName)
+                            Text(item.displayTypeName)
                                 .font(.system(size: 12, weight: .black, design: .rounded))
                                 .foregroundStyle(LGradients.header)
                         }
@@ -325,6 +415,14 @@ struct GrimoireView: View {
     }
 
     private func deleteEntry(_ item: GrimoireListItem) {
+        if item.isCustom {
+            if let entry = customEntries.first(where: { $0.id == item.id }) {
+                modelContext.delete(entry)
+                try? modelContext.save()
+            }
+            return
+        }
+
         switch item.type {
         case .journal:
             if let entry = journals.first(where: { $0.id == item.id }) {
@@ -404,7 +502,12 @@ struct GrimoireView: View {
 
     @ViewBuilder
     private func destinationView(for item: GrimoireListItem) -> some View {
-        switch item.type {
+        if item.isCustom {
+            if let entry = customEntries.first(where: { $0.id == item.id }) {
+                CustomGrimoireEntryDetail(entry: entry)
+            }
+        } else {
+            switch item.type {
         case .journal:
             if let entry = journals.first(where: { $0.id == item.id }) {
                 JournalEntryDetail(entry: entry)
@@ -458,13 +561,17 @@ struct GrimoireView: View {
                 ManifestationEntryDetail(entry: entry)
             }
         }
+        }
     }
 
     // MARK: - New Entry Form
 
     @ViewBuilder
     private var newEntryFormView: some View {
-        switch selectedNewEntryType {
+        if let selectedCustomTemplate {
+            CustomGrimoireEntryForm(template: selectedCustomTemplate)
+        } else {
+            switch selectedNewEntryType {
         case .journal:
             JournalEntryForm()
         case .experience:
@@ -493,6 +600,7 @@ struct GrimoireView: View {
             ManifestationEntryForm()
         case nil:
             EmptyView()
+        }
         }
     }
 }

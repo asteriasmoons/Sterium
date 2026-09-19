@@ -6,8 +6,37 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		CF9BD541304E3D0A00B8CB82 /* SteriumShare.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = CF9BD537304E3D0A00B8CB82 /* SteriumShare.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CF9BD53F304E3D0A00B8CB82 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CF509B8B300B250A006F1D55 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CF9BD536304E3D0A00B8CB82;
+			remoteInfo = SteriumShare;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CF9BD546304E3D0A00B8CB82 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CF9BD541304E3D0A00B8CB82 /* SteriumShare.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		CF509B93300B250A006F1D55 /* Asterium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Asterium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF9BD537304E3D0A00B8CB82 /* SteriumShare.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SteriumShare.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -18,6 +47,44 @@
 			);
 			target = CF509B92300B250A006F1D55 /* Asterium */;
 		};
+		CF9BD545304E3D0A00B8CB82 /* Exceptions for "SteriumShare" folder in "SteriumShare" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CF9BD536304E3D0A00B8CB82 /* SteriumShare */;
+		};
+		CFDA110000000000000000A1 /* Exceptions for "Asterium" folder in "SteriumShare" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Models/CustomGrimoireModels.swift,
+				Models/DeityDevotionEntry.swift,
+				Models/DivinationEntry.swift,
+				Models/DreamEntry.swift,
+				Models/ExperienceEntry.swift,
+				Models/GeneratedLibraryModels.swift,
+				Models/GrimoireCustomFilter.swift,
+				Models/GrimoireSharedModels.swift,
+				Models/HomeWidgetLayout.swift,
+				Models/JournalEntry.swift,
+				Models/ManifestationEntry.swift,
+				Models/MeditationEntry.swift,
+				Models/MoonPhaseEntry.swift,
+				Models/PathworkEntry.swift,
+				Models/SavedWorkingTiming.swift,
+				Models/ShadowWorkEntry.swift,
+				Models/SteriumEvent.swift,
+				Models/SubmittedReport.swift,
+				Models/SynchronicityEntry.swift,
+				Models/WorkingDocumentEntry.swift,
+				Models/WorkingResultEntry.swift,
+				Shared/SteriumShared.swift,
+				Theme/Theme.swift,
+				VisionBoards/Shared/VisionBoardModels.swift,
+				VisionBoards/Shared/VisionBoardStore.swift,
+			);
+			target = CF9BD536304E3D0A00B8CB82 /* SteriumShare */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -25,14 +92,30 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				CF509BA0300B250C006F1D55 /* Exceptions for "Asterium" folder in "Asterium" target */,
+				CFDA110000000000000000A1 /* Exceptions for "Asterium" folder in "SteriumShare" target */,
 			);
 			path = Asterium;
+			sourceTree = "<group>";
+		};
+		CF9BD538304E3D0A00B8CB82 /* SteriumShare */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				CF9BD545304E3D0A00B8CB82 /* Exceptions for "SteriumShare" folder in "SteriumShare" target */,
+			);
+			path = SteriumShare;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		CF509B90300B250A006F1D55 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF9BD534304E3D0A00B8CB82 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,6 +129,7 @@
 			isa = PBXGroup;
 			children = (
 				CF509B95300B250A006F1D55 /* Asterium */,
+				CF9BD538304E3D0A00B8CB82 /* SteriumShare */,
 				CF509B94300B250A006F1D55 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +138,7 @@
 			isa = PBXGroup;
 			children = (
 				CF509B93300B250A006F1D55 /* Asterium.app */,
+				CF9BD537304E3D0A00B8CB82 /* SteriumShare.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,10 +153,12 @@
 				CF509B8F300B250A006F1D55 /* Sources */,
 				CF509B90300B250A006F1D55 /* Frameworks */,
 				CF509B91300B250A006F1D55 /* Resources */,
+				CF9BD546304E3D0A00B8CB82 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				CF9BD540304E3D0A00B8CB82 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				CF509B95300B250A006F1D55 /* Asterium */,
@@ -82,6 +169,28 @@
 			productName = Asterium;
 			productReference = CF509B93300B250A006F1D55 /* Asterium.app */;
 			productType = "com.apple.product-type.application";
+		};
+		CF9BD536304E3D0A00B8CB82 /* SteriumShare */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CF9BD542304E3D0A00B8CB82 /* Build configuration list for PBXNativeTarget "SteriumShare" */;
+			buildPhases = (
+				CF9BD533304E3D0A00B8CB82 /* Sources */,
+				CF9BD534304E3D0A00B8CB82 /* Frameworks */,
+				CF9BD535304E3D0A00B8CB82 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				CF9BD538304E3D0A00B8CB82 /* SteriumShare */,
+			);
+			name = SteriumShare;
+			packageProductDependencies = (
+			);
+			productName = SteriumShare;
+			productReference = CF9BD537304E3D0A00B8CB82 /* SteriumShare.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -94,6 +203,9 @@
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					CF509B92300B250A006F1D55 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					CF9BD536304E3D0A00B8CB82 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
@@ -113,12 +225,20 @@
 			projectRoot = "";
 			targets = (
 				CF509B92300B250A006F1D55 /* Asterium */,
+				CF9BD536304E3D0A00B8CB82 /* SteriumShare */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		CF509B91300B250A006F1D55 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CF9BD535304E3D0A00B8CB82 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +255,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		CF9BD533304E3D0A00B8CB82 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CF9BD540304E3D0A00B8CB82 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CF9BD536304E3D0A00B8CB82 /* SteriumShare */;
+			targetProxy = CF9BD53F304E3D0A00B8CB82 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		CF509BA2300B250C006F1D55 /* Debug */ = {
@@ -151,6 +286,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Asterium/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Asterium;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Asterium uses your location to keep planetary day and hour guidance accurate even when the app is not open.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Asterium uses your location to display the planetary information on the homepage";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -190,6 +327,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Asterium/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Asterium;
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Asterium uses your location to keep planetary day and hour guidance accurate even when the app is not open.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Asterium uses your location to display the planetary information on the homepage";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -337,6 +476,64 @@
 			};
 			name = Release;
 		};
+		CF9BD543304E3D0A00B8CB82 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SteriumShare/SteriumShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PLRRW8XCVU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SteriumShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SteriumShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = im.lystaria.Asterium.SteriumShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CF9BD544304E3D0A00B8CB82 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SteriumShare/SteriumShare.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PLRRW8XCVU;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SteriumShare/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SteriumShare;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = im.lystaria.Asterium.SteriumShare;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -354,6 +551,15 @@
 			buildConfigurations = (
 				CF509BA2300B250C006F1D55 /* Debug */,
 				CF509BA3300B250C006F1D55 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CF9BD542304E3D0A00B8CB82 /* Build configuration list for PBXNativeTarget "SteriumShare" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CF9BD543304E3D0A00B8CB82 /* Debug */,
+				CF9BD544304E3D0A00B8CB82 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

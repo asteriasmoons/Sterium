@@ -1,7 +1,6 @@
-
 //
 //  MoonPhaseEntryForm.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -18,10 +17,10 @@ struct MoonPhaseEntryForm: View {
     @State private var moonPhase: String
     @State private var zodiacSign: String
     @State private var energyLevel: Int
-    @State private var mood: String
-    @State private var intentions: String
-    @State private var ritualsPerformed: String
-    @State private var manifestations: String
+    @State private var moodSelections: Set<String>
+    @State private var intentionItems: [String]
+    @State private var ritualsPerformedItems: [String]
+    @State private var manifestationItems: [String]
     @State private var reflections: String
 
     @State private var importance: Int
@@ -30,6 +29,21 @@ struct MoonPhaseEntryForm: View {
     @State private var relatedEntries: [GrimoireRelatedEntry]
     @State private var additionalNotes: String
 
+    private static let moodOptions = [
+        "Calm",
+        "Reflective",
+        "Hopeful",
+        "Focused",
+        "Inspired",
+        "Grounded",
+        "Restless",
+        "Emotional",
+        "Energetic",
+        "Drained",
+        "Intuitive",
+        "Motivated"
+    ]
+
     init(existing: MoonPhaseEntry? = nil) {
         self.existing = existing
         _title = State(initialValue: existing?.title ?? "")
@@ -37,10 +51,10 @@ struct MoonPhaseEntryForm: View {
         _moonPhase = State(initialValue: existing?.moonPhase ?? "")
         _zodiacSign = State(initialValue: existing?.zodiacSign ?? "")
         _energyLevel = State(initialValue: existing?.energyLevel ?? 1)
-        _mood = State(initialValue: existing?.mood ?? "")
-        _intentions = State(initialValue: existing?.intentions ?? "")
-        _ritualsPerformed = State(initialValue: existing?.ritualsPerformed ?? "")
-        _manifestations = State(initialValue: existing?.manifestations ?? "")
+        _moodSelections = State(initialValue: Set(existing?.moodSelections ?? []))
+        _intentionItems = State(initialValue: existing?.intentionItems ?? [])
+        _ritualsPerformedItems = State(initialValue: existing?.ritualsPerformedItems ?? [])
+        _manifestationItems = State(initialValue: existing?.manifestationItems ?? [])
         _reflections = State(initialValue: existing?.reflections ?? "")
         _importance = State(initialValue: existing?.importance ?? 1)
         _tags = State(initialValue: existing?.tags ?? [])
@@ -89,28 +103,31 @@ struct MoonPhaseEntryForm: View {
 
                     energyLevelPicker
 
-                    AsteriumPickerField(
+                    AsteriumMultiSelectPickerField(
                         title: "Mood",
-                        options: ["Calm", "Reflective", "Hopeful", "Focused", "Inspired", "Grounded", "Restless", "Emotional", "Energetic", "Drained", "Intuitive", "Motivated"],
-                        selection: $mood
+                        options: Self.moodOptions,
+                        selections: $moodSelections
                     )
 
-                    AsteriumTextEditor(
+                    MoonPhaseExpandableItemsField(
                         title: "Intentions",
-                        placeholder: "Your intentions...",
-                        text: $intentions
+                        placeholder: "Add an intention...",
+                        listTitle: "Intentions",
+                        items: $intentionItems
                     )
 
-                    AsteriumTextEditor(
+                    MoonPhaseExpandableItemsField(
                         title: "Rituals Performed",
-                        placeholder: "Rituals you performed...",
-                        text: $ritualsPerformed
+                        placeholder: "Add a ritual...",
+                        listTitle: "Rituals Performed",
+                        items: $ritualsPerformedItems
                     )
 
-                    AsteriumTextEditor(
+                    MoonPhaseExpandableItemsField(
                         title: "Manifestations",
-                        placeholder: "Manifestation work...",
-                        text: $manifestations
+                        placeholder: "Add a manifestation...",
+                        listTitle: "Manifestations",
+                        items: $manifestationItems
                     )
 
                     AsteriumTextEditor(
@@ -132,22 +149,14 @@ struct MoonPhaseEntryForm: View {
                     }
                 }
                 .padding(.horizontal, LSpacing.pageHorizontal)
-                .padding(.bottom, 40)
+                .padding(.bottom, 120)
             }
-            .scrollDismissesKeyboard(.immediately)
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    UIApplication.shared.sendAction(
-                        #selector(UIResponder.resignFirstResponder),
-                        to: nil,
-                        from: nil,
-                        for: nil
-                    )
-                }
-            )
-            .background { AsteriumBackground() }
+            .scrollDismissesKeyboard(.never)
+            .grimoireFormBackground()
             .toolbar(.hidden, for: .navigationBar)
         }
+        .presentationDetents([.large])
+        .presentationContentInteraction(.scrolls)
     }
 
     private var energyLevelPicker: some View {
@@ -191,10 +200,10 @@ struct MoonPhaseEntryForm: View {
             existing.moonPhase = moonPhase
             existing.zodiacSign = zodiacSign
             existing.energyLevel = energyLevel
-            existing.mood = mood
-            existing.intentions = intentions
-            existing.ritualsPerformed = ritualsPerformed
-            existing.manifestations = manifestations
+            existing.moodSelections = Self.moodOptions.filter { moodSelections.contains($0) }
+            existing.intentionItems = intentionItems
+            existing.ritualsPerformedItems = ritualsPerformedItems
+            existing.manifestationItems = manifestationItems
             existing.reflections = reflections
             existing.importance = importance
             existing.tags = tags
@@ -209,10 +218,10 @@ struct MoonPhaseEntryForm: View {
                 moonPhase: moonPhase,
                 zodiacSign: zodiacSign,
                 energyLevel: energyLevel,
-                mood: mood,
-                intentions: intentions,
-                ritualsPerformed: ritualsPerformed,
-                manifestations: manifestations,
+                moodSelections: Self.moodOptions.filter { moodSelections.contains($0) },
+                intentionItems: intentionItems,
+                ritualsPerformedItems: ritualsPerformedItems,
+                manifestationItems: manifestationItems,
                 reflections: reflections,
                 importance: importance,
                 tags: tags,
@@ -226,4 +235,123 @@ struct MoonPhaseEntryForm: View {
         }
         dismiss()
     }
+}
+
+private struct MoonPhaseExpandableItemsField: View {
+    let title: String
+    let placeholder: String
+    let listTitle: String
+    @Binding var items: [String]
+    @State private var draft = ""
+    @State private var isExpanded = true
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            moonPhaseFieldLabel(title)
+
+            HStack(spacing: 10) {
+                moonPhaseShortInput(placeholder, text: $draft)
+                    .onSubmit(addItem)
+                moonPhaseAddButton(action: addItem)
+            }
+
+            if !items.isEmpty {
+                GlassCard(cornerRadius: LSpacing.inputRadius, padding: 0) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Button {
+                            withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
+                                isExpanded.toggle()
+                            }
+                        } label: {
+                            HStack {
+                                Text(listTitle)
+                                    .font(.system(size: 14, weight: .black, design: .rounded))
+                                    .foregroundStyle(LColors.textPrimary)
+
+                                Spacer()
+
+                                Image(isExpanded ? "chevup" : "chevdown")
+                                    .renderingMode(.template)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 16, height: 16)
+                                    .foregroundStyle(LGradients.header)
+                            }
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 12)
+                        }
+                        .buttonStyle(.plain)
+
+                        if isExpanded {
+                            ForEach(items.indices, id: \.self) { index in
+                                HStack(spacing: 10) {
+                                    Text(items[index])
+                                        .font(.system(size: 15, weight: .semibold, design: .rounded))
+                                        .foregroundStyle(LColors.textPrimary)
+
+                                    Spacer(minLength: 0)
+
+                                    Button {
+                                        items.remove(at: index)
+                                    } label: {
+                                        Image("xmarkwavy")
+                                            .renderingMode(.template)
+                                            .resizable()
+                                            .scaledToFit()
+                                            .frame(width: 16, height: 16)
+                                            .foregroundStyle(LGradients.header)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                                .padding(.horizontal, 14)
+                                .padding(.vertical, 10)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func addItem() {
+        let value = draft.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return }
+        items.append(value)
+        draft = ""
+    }
+}
+
+private func moonPhaseFieldLabel(_ title: String) -> some View {
+    Text(title.uppercased())
+        .font(.system(size: 13, weight: .black, design: .rounded))
+        .foregroundStyle(LColors.textSecondary)
+}
+
+private func moonPhaseShortInput(_ placeholder: String, text: Binding<String>) -> some View {
+    GlassCard(cornerRadius: LSpacing.inputRadius, padding: 0) {
+        TextField(placeholder, text: text)
+            .lineLimit(1)
+            .submitLabel(.done)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(LColors.textPrimary)
+            .padding(14)
+    }
+}
+
+private func moonPhaseAddButton(action: @escaping () -> Void) -> some View {
+    Button(action: action) {
+        Image("addwavy")
+            .renderingMode(.template)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 20, height: 20)
+            .foregroundStyle(LGradients.header)
+            .frame(width: 44, height: 44)
+            .background(LColors.glassSurface, in: RoundedRectangle(cornerRadius: 14))
+            .overlay {
+                RoundedRectangle(cornerRadius: 14)
+                    .strokeBorder(LColors.glassBorder, lineWidth: 1)
+            }
+    }
+    .buttonStyle(.plain)
 }

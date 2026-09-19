@@ -1,6 +1,6 @@
 //
 //  Theme.swift
-//  Seery
+//  Sterium
 //
 
 import SwiftUI

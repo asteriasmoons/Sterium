@@ -1,7 +1,6 @@
-
 //
 //  SynchronicityEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

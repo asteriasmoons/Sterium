@@ -1,6 +1,6 @@
 //
 //  PlanetaryHourCalculator.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

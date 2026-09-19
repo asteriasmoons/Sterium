@@ -1,6 +1,6 @@
 //
 //  DailySpiritualCalculator.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

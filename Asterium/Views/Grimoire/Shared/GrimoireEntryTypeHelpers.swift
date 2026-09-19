@@ -1,7 +1,6 @@
-
 //
 //  GrimoireEntryTypeHelpers.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -169,7 +168,9 @@ extension PathworkStatus {
 extension ManifestationStatus {
     var displayName: String {
         switch self {
-        case .inProgress:    return "In Progress"
+        case .started:       return "Started"
+        case .inProgress:    return "In-Progress"
+        case .earlyStages:   return "Early Stages"
         case .manifested:    return "Manifested"
         case .notManifested: return "Not Manifested"
         case .released:      return "Released"

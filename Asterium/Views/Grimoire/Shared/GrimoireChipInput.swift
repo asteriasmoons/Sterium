@@ -1,7 +1,7 @@
 
 //
 //  GrimoireChipInput.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI

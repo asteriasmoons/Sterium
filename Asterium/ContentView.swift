@@ -1,8 +1,6 @@
 //
 //  ContentView.swift
-//  Asterium
-//
-//  Created by Asteria Moon on 7/17/26.
+//  Sterium
 //
 
 import SwiftUI

@@ -1,7 +1,6 @@
-
 //
 //  ExperienceEntryDetail.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -24,15 +23,43 @@ struct ExperienceEntryDetail: View {
                         }
                     }
 
-                    GrimoireDetailFooter(
-                        importance: entry.importance,
-                        tags: entry.tags,
-                        relatedEntries: entry.relatedEntries,
-                        additionalNotes: entry.additionalNotes
-                    )
+                    detailFooter
         }
         .asteriumAdaptivePresentation(isPresented: $showingEdit) {
                 ExperienceEntryForm(existing: entry)
         }
+    }
+
+    private var detailFooter: some View {
+        Group {
+            VStack(alignment: .leading, spacing: 8) {
+                AsteriumSectionHeader(title: "Importance")
+                GrimoireImportanceDots(value: entry.importance, showsLabel: false)
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                AsteriumSectionHeader(title: "Tags")
+                GrimoireDetailChips(label: "Tags", items: entry.tags, showsLabel: false)
+            }
+
+            if !entry.attachments.isEmpty {
+                GrimoireDetailSection(title: "Attachments") {
+                    GrimoireAttachmentGallery(attachments: entry.attachments)
+                }
+            }
+
+            GrimoireRelatedEntriesList(entries: entry.relatedEntries)
+
+            GrimoireDetailSection(title: "Additional Notes") {
+                Text(trimmedAdditionalNotes.isEmpty ? "No additional notes" : trimmedAdditionalNotes)
+                    .font(.system(size: 15, weight: .semibold, design: .rounded))
+                    .foregroundStyle(trimmedAdditionalNotes.isEmpty ? LColors.textSecondary : LColors.textPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private var trimmedAdditionalNotes: String {
+        entry.additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

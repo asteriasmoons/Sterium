@@ -1,9 +1,10 @@
 //
 //  CorrespondenceEngineService.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
+import SwiftData
 
 enum CorrespondenceType: String, CaseIterable, Codable, Identifiable {
     case herb
@@ -174,6 +175,139 @@ struct CorrespondenceEntryResponse: Codable, Equatable, Identifiable {
     let historicalNotes: String
     let folklore: String
     let warnings: String
+    let foods: [String]?
+    let drinks: [String]?
+    let waysToCelebrate: [String]?
+    let ritualIdeas: [String]?
+    let activities: [String]?
+    let decorations: [String]?
+    let altarIdeas: [String]?
+    let herbsAndPlants: [String]?
+    let crystalsAndStones: [String]?
+    let incenseAndScents: [String]?
+    let seasonalThemes: [String]?
+    let botanicalFamily: String?
+    let partsUsed: [String]?
+    let preparationMethods: [String]?
+    let harvestingAndStorage: String?
+    let commonSubstitutions: [String]?
+    let complementaryHerbs: [String]?
+    let smokeAndIncenseUses: [String]?
+    let bloomingSeason: [String]?
+    let preservationMethods: [String]?
+    let floralSymbolism: [String]?
+    let traditionalGiftMeanings: [String]?
+    let complementaryFlowers: [String]?
+    let mineralFamily: String?
+    let composition: String?
+    let hardness: String?
+    let crystalSystem: String?
+    let commonColorsAndVarieties: [String]?
+    let cleansingMethods: [String]?
+    let chargingMethods: [String]?
+    let sourcePlant: String?
+    let plantPartUsed: String?
+    let aromaProfile: String?
+    let blendingNotes: String?
+    let complementaryOils: [String]?
+    let shadesAndVariations: [String]?
+    let candleMagicUses: [String]?
+    let visualizationUses: [String]?
+    let planetaryDay: String?
+    let planetaryHour: String?
+    let traditionalMetal: String?
+    let associatedHerbs: [String]?
+    let associatedCrystals: [String]?
+    let magicalDomains: [String]?
+    let modality: String?
+    let polarity: String?
+    let rulingPlanet: String?
+    let houseAssociation: String?
+    let symbolMeaning: String?
+    let energeticQualities: [String]?
+    let strengthsAndWeaknesses: [String]?
+    let energeticTheme: String?
+    let bestMagicalWork: [String]?
+    let seasonalFoods: [String]?
+    let seasonalDrinks: [String]?
+    let seasonalPlants: [String]?
+    let seasonalAnimals: [String]?
+    let seasonalActivities: [String]?
+    let magicalFocus: [String]?
+    let associatedColors: [String]?
+    let deityAssociations: [String]?
+    let direction: String?
+    let qualities: [String]?
+    let associatedTools: [String]?
+    let associatedSpirits: [String]?
+    let associatedWeather: [String]?
+    let invocationMethods: [String]?
+    let altarRepresentation: String?
+    let arcana: String?
+    let suit: String?
+    let numberOrRank: String?
+    let element: String?
+    let astrologicalAssociation: String?
+    let uprightMeaning: String?
+    let reversedMeaning: String?
+    let keywords: [String]?
+    let imageryAndSymbolism: String?
+    let yesNoAssociation: String?
+    let timingAssociation: String?
+    let cultureTradition: String?
+    let pantheon: String?
+    let domains: [String]?
+    let epithetsTitles: [String]?
+    let sacredAnimals: [String]?
+    let sacredPlants: [String]?
+    let sacredPlaces: [String]?
+    let offerings: [String]?
+    let devotionalActs: [String]?
+    let festivalsHolyDays: [String]?
+    let mythsAndStories: String?
+    let historicalWorship: String?
+    let modernDevotionalPractices: [String]?
+    let spiritType: String?
+    let culturalContext: String?
+    let domainsAssociations: [String]?
+    let appearanceDescriptions: String?
+    let signsAndPresence: [String]?
+    let communicationMethods: [String]?
+    let relatedSpirits: [String]?
+    let protectiveConsiderations: String?
+    let habitat: String?
+    let behavioralTraits: [String]?
+    let symbolicTraits: [String]?
+    let omensAndSigns: [String]?
+    let dreamMeaning: String?
+    let encounterMeaning: String?
+    let associatedSeasons: [String]?
+    let spiritGuideInterpretations: String?
+    let culturalSymbolism: String?
+    let toolType: String?
+    let traditionalPurpose: String?
+    let howToUse: String?
+    let preparation: String?
+    let cleansing: String?
+    let consecration: String?
+    let charging: String?
+    let storage: String?
+    let materials: [String]?
+    let commonVariations: [String]?
+    let substitutions: [String]?
+    let ritualApplications: [String]?
+    let spellworkApplications: [String]?
+    let coreMeaning: String?
+    let positiveExpression: String?
+    let shadowExpression: String?
+    let repeatingNumberMeaning: String?
+    let synchronicityMeaning: String?
+    let manifestationAssociation: String?
+    let divinationMeaning: String?
+    let tarotConnections: [String]?
+    let astrologicalConnections: [String]?
+    let sacredGeometrySymbolism: String?
+    let culturalHistoricalMeanings: [String]?
     let cached: Bool
     let source: String
     let createdAt: String?
@@ -203,6 +337,7 @@ enum CorrespondenceEngineServiceError: LocalizedError {
     }
 }
 
+@MainActor
 final class CorrespondenceEngineService {
     private struct BackendError: Decodable {
         let error: String
@@ -227,8 +362,13 @@ final class CorrespondenceEngineService {
     func generate(
         type: CorrespondenceType,
         name: String,
-        refresh: Bool = false
+        refresh: Bool = false,
+        modelContext: ModelContext
     ) async throws -> CorrespondenceEntryResponse {
+        if let customEntry = customEntry(type: type, name: name, modelContext: modelContext) {
+            return customEntry
+        }
+
         guard let url = URL(string: "\(baseURL)/api/correspondences") else {
             throw CorrespondenceEngineServiceError.invalidURL
         }
@@ -236,7 +376,7 @@ final class CorrespondenceEngineService {
         let requestBody = CorrespondenceEngineRequest(
             type: type.backendValue,
             name: name,
-            refresh: refresh ? true : nil
+            refresh: (type == .sabbat || type == .herb || type == .flower || type == .crystal || type == .essentialOil || type == .color || type == .planet || type == .zodiacSign || type == .lunarPhase || type == .season || type == .dayOfWeek || type == .element || type == .tarotCard || type == .deity || type == .spirit || type == .animal || type == .tool || type == .number || refresh) ? true : nil
         )
 
         var request = URLRequest(url: url)
@@ -258,44 +398,105 @@ final class CorrespondenceEngineService {
         }
 
         let entry = try JSONDecoder().decode(CorrespondenceEntryResponse.self, from: data)
-        save(entry, type: type)
+        save(entry, type: type, modelContext: modelContext)
         return entry
     }
 
-    func savedEntries(for type: CorrespondenceType) -> [CorrespondenceEntryResponse] {
-        guard let data = userDefaults.data(forKey: savedKey(for: type)),
-              let entries = try? JSONDecoder().decode(
-                [CorrespondenceEntryResponse].self,
-                from: data
-              )
-        else {
-            return []
-        }
+    func savedEntries(for type: CorrespondenceType, modelContext: ModelContext) -> [CorrespondenceEntryResponse] {
+        migrateLegacyEntriesIfNeeded(for: type, modelContext: modelContext)
+        let typeValue = type.backendValue
+        let descriptor = FetchDescriptor<SavedCorrespondenceRecord>(
+            predicate: #Predicate { $0.type == typeValue }
+        )
+        let records = (try? modelContext.fetch(descriptor)) ?? []
+        return records.compactMap { try? JSONDecoder().decode(CorrespondenceEntryResponse.self, from: $0.payload) }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+    }
 
-        return entries.sorted {
-            $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+    func save(_ entry: CorrespondenceEntryResponse, type: CorrespondenceType, modelContext: ModelContext) {
+        migrateLegacyEntriesIfNeeded(for: type, modelContext: modelContext)
+        let existingEntries = savedEntriesWithoutMigration(for: type, modelContext: modelContext)
+        if let existingCustomEntry = existingEntries.first(where: {
+            $0.entry.name.caseInsensitiveCompare(entry.name) == .orderedSame &&
+            $0.entry.source.caseInsensitiveCompare("custom") == .orderedSame &&
+            entry.source.caseInsensitiveCompare("custom") != .orderedSame
+        }) {
+            removeMatchingRecords(named: entry.name, type: type, keeping: existingCustomEntry.record, modelContext: modelContext)
+            try? modelContext.save()
+            return
+        }
+        removeMatchingRecords(named: entry.name, type: type, keeping: nil, modelContext: modelContext)
+        insert(entry, type: type, modelContext: modelContext)
+        try? modelContext.save()
+    }
+
+    func saveCustom(_ entry: CorrespondenceEntryResponse, type: CorrespondenceType, modelContext: ModelContext) {
+        save(entry, type: type, modelContext: modelContext)
+    }
+
+    func delete(_ entry: CorrespondenceEntryResponse, type: CorrespondenceType, modelContext: ModelContext) {
+        removeMatchingRecords(named: entry.name, type: type, keeping: nil, modelContext: modelContext)
+        try? modelContext.save()
+    }
+
+    func customEntry(type: CorrespondenceType, name: String, modelContext: ModelContext) -> CorrespondenceEntryResponse? {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard trimmedName.isEmpty == false else { return nil }
+        return savedEntries(for: type, modelContext: modelContext).first {
+            $0.name.caseInsensitiveCompare(trimmedName) == .orderedSame &&
+            $0.source.caseInsensitiveCompare("custom") == .orderedSame
         }
     }
 
-    func save(_ entry: CorrespondenceEntryResponse, type: CorrespondenceType) {
-        var entries = savedEntries(for: type)
-        entries.removeAll {
-            $0.name.caseInsensitiveCompare(entry.name) == .orderedSame
+    private func savedEntriesWithoutMigration(for type: CorrespondenceType, modelContext: ModelContext) -> [(record: SavedCorrespondenceRecord, entry: CorrespondenceEntryResponse)] {
+        let typeValue = type.backendValue
+        let descriptor = FetchDescriptor<SavedCorrespondenceRecord>(predicate: #Predicate { $0.type == typeValue })
+        return ((try? modelContext.fetch(descriptor)) ?? []).compactMap { record in
+            guard let entry = try? JSONDecoder().decode(CorrespondenceEntryResponse.self, from: record.payload) else { return nil }
+            return (record, entry)
         }
-        entries.append(entry)
+    }
 
-        guard let data = try? JSONEncoder().encode(entries) else {
-            return
+    private func insert(_ entry: CorrespondenceEntryResponse, type: CorrespondenceType, modelContext: ModelContext) {
+        guard let payload = try? JSONEncoder().encode(entry) else { return }
+        modelContext.insert(SavedCorrespondenceRecord(
+            type: type.backendValue,
+            name: entry.name,
+            source: entry.source,
+            updatedAt: entry.updatedAt ?? entry.createdAt ?? "",
+            payload: payload
+        ))
+    }
+
+    private func removeMatchingRecords(named name: String, type: CorrespondenceType, keeping recordToKeep: SavedCorrespondenceRecord?, modelContext: ModelContext) {
+        for item in savedEntriesWithoutMigration(for: type, modelContext: modelContext) where item.entry.name.caseInsensitiveCompare(name) == .orderedSame {
+            if item.record !== recordToKeep { modelContext.delete(item.record) }
         }
+    }
 
-        userDefaults.set(data, forKey: savedKey(for: type))
+    private func migrateLegacyEntriesIfNeeded(for type: CorrespondenceType, modelContext: ModelContext) {
+        let key = savedKey(for: type)
+        guard let data = userDefaults.data(forKey: key),
+              let entries = try? JSONDecoder().decode([CorrespondenceEntryResponse].self, from: data) else { return }
+        for entry in entries {
+            let exists = savedEntriesWithoutMigration(for: type, modelContext: modelContext).contains {
+                $0.entry.name.caseInsensitiveCompare(entry.name) == .orderedSame
+            }
+            if !exists { insert(entry, type: type, modelContext: modelContext) }
+        }
+        do {
+            try modelContext.save()
+            userDefaults.removeObject(forKey: key)
+        } catch {
+            // Keep the legacy copy until SwiftData successfully saves it.
+        }
     }
 
     private func savedKey(for type: CorrespondenceType) -> String {
         "\(Self.savedPrefix)\(type.backendValue)"
     }
 
-    private static var defaultBaseURL: String {
+    nonisolated private static var defaultBaseURL: String {
         if let configuredURL = Bundle.main.object(
             forInfoDictionaryKey: "API_BASE_URL"
         ) as? String,

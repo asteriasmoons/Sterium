@@ -1,7 +1,6 @@
-
 //
 //  GrimoireSharedModels.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
@@ -79,7 +78,9 @@ enum PathworkStatus: String, Codable, CaseIterable {
 }
 
 enum ManifestationStatus: String, Codable, CaseIterable {
+    case started
     case inProgress
+    case earlyStages
     case manifested
     case notManifested
     case released

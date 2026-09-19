@@ -1,7 +1,6 @@
-
 //
 //  GrimoireDetailRow.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -285,12 +284,9 @@ struct GrimoireRelatedEntriesList: View {
     private var manifestations: [ManifestationEntry]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             if showsLabel {
-                Text("RELATED ENTRIES")
-                    .font(.system(size: 11, weight: .black, design: .rounded))
-                    .tracking(1.5)
-                    .foregroundStyle(LColors.textSecondary)
+                AsteriumSectionHeader(title: "Related Entries")
             }
 
             if entries.isEmpty {
@@ -315,40 +311,43 @@ struct GrimoireRelatedEntriesList: View {
     }
 
     private func relatedEntryRow(_ relation: GrimoireRelatedEntry, isMissing: Bool) -> some View {
-        HStack(spacing: 10) {
-            Image(relation.relatedEntryType.icon)
-                .renderingMode(.template)
-                .resizable()
-                .scaledToFit()
-                .frame(width: 18, height: 18)
-                .foregroundStyle(isMissing ? AnyShapeStyle(LColors.textSecondary) : AnyShapeStyle(LGradients.header))
-                .frame(width: 32, height: 32)
-                .background(LColors.glassSurface, in: Circle())
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(relation.relatedEntryTitle)
-                    .font(.system(size: 14, weight: .black, design: .rounded))
-                    .foregroundStyle(isMissing ? LColors.textSecondary : LColors.textPrimary)
-                    .lineLimit(1)
-
-                Text(isMissing ? "Linked entry unavailable" : relation.relatedEntryType.singularName)
-                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                    .foregroundStyle(LColors.textSecondary)
-            }
-
-            Spacer()
-
-            if isMissing == false {
-                Image("rightwavy")
+        GlassCard(padding: 0) {
+            HStack(spacing: 14) {
+                Image(relation.relatedEntryType.icon)
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 14, height: 14)
-                    .foregroundStyle(LGradients.header)
+                    .frame(width: 18, height: 18)
+                    .foregroundStyle(isMissing ? AnyShapeStyle(LColors.textSecondary) : AnyShapeStyle(LGradients.header))
+                    .frame(width: 32, height: 32)
+                    .background(LColors.glassSurface, in: Circle())
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(relation.relatedEntryTitle)
+                        .font(.system(size: 15, weight: .black, design: .rounded))
+                        .foregroundStyle(isMissing ? LColors.textSecondary : LColors.textPrimary)
+                        .lineLimit(1)
+
+                    Text(isMissing ? "Linked entry unavailable" : relation.relatedEntryType.singularName)
+                        .font(.system(size: 12, weight: .bold, design: .rounded))
+                        .foregroundStyle(LColors.textSecondary)
+                }
+
+                Spacer()
+
+                if isMissing == false {
+                    Image("rightwavy")
+                        .renderingMode(.template)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 14, height: 14)
+                        .foregroundStyle(LGradients.header)
+                }
             }
+            .padding(.horizontal, 26)
+            .padding(.vertical, 16)
+            .contentShape(Rectangle())
         }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
     }
 
     private func hasRelatedDestination(for relation: GrimoireRelatedEntry) -> Bool {
@@ -472,6 +471,7 @@ struct GrimoireRelatedEntriesList: View {
 struct GrimoireDetailFooter: View {
     let importance: Int
     let tags: [String]
+    var attachments: [GrimoireAttachment] = []
     let relatedEntries: [GrimoireRelatedEntry]
     let additionalNotes: String
     private var trimmedAdditionalNotes: String {
@@ -488,9 +488,13 @@ struct GrimoireDetailFooter: View {
                 GrimoireDetailChips(label: "Tags", items: tags, showsLabel: false)
             }
 
-            GrimoireDetailSection(title: "Related Entries") {
-                GrimoireRelatedEntriesList(entries: relatedEntries, showsLabel: false)
+            if !attachments.isEmpty {
+                GrimoireDetailSection(title: "Attachments") {
+                    GrimoireAttachmentGallery(attachments: attachments)
+                }
             }
+
+            GrimoireRelatedEntriesList(entries: relatedEntries)
 
             GrimoireDetailSection(title: "Additional Notes") {
                 Text(trimmedAdditionalNotes.isEmpty ? "No additional notes" : trimmedAdditionalNotes)

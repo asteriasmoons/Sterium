@@ -1,0 +1,96 @@
+{
+  "source": "/Users/asteriasmoons/Desktop/Asterium/SteriumShare/ShareRootView.swift",
+  "tables": {
+    "Localizable": [
+      {
+        "comment": "",
+        "key": "Added to Sterium",
+        "location": {
+          "startingColumn": 30,
+          "startingLine": 151
+        }
+      },
+      {
+        "comment": "",
+        "key": "STERIUM",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 177
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add to Vision Board",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 181
+        }
+      },
+      {
+        "comment": "",
+        "key": "Cancel",
+        "location": {
+          "startingColumn": 22,
+          "startingLine": 187
+        }
+      },
+      {
+        "comment": "",
+        "key": "CHOOSE A BOARD",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 226
+        }
+      },
+      {
+        "comment": "",
+        "key": "Adding...",
+        "location": {
+          "startingColumn": 33,
+          "startingLine": 240
+        }
+      },
+      {
+        "comment": "",
+        "key": "Add",
+        "location": {
+          "startingColumn": 47,
+          "startingLine": 240
+        }
+      },
+      {
+        "comment": "",
+        "key": "%lld image%@",
+        "location": {
+          "startingColumn": 26,
+          "startingLine": 263
+        }
+      },
+      {
+        "comment": "",
+        "key": "No Vision Boards yet",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 288
+        }
+      },
+      {
+        "comment": "",
+        "key": "Open Sterium and create a Vision Board first, then share images into it from here.",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 291
+        }
+      },
+      {
+        "comment": "",
+        "key": "Couldn't add image",
+        "location": {
+          "startingColumn": 18,
+          "startingLine": 304
+        }
+      }
+    ]
+  },
+  "version": 1
+}

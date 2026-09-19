@@ -1,7 +1,6 @@
-
 //
 //  DreamEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

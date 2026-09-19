@@ -1,7 +1,6 @@
-
 //
 //  WorkingResultEntryDetail.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -22,7 +21,7 @@ struct WorkingResultEntryDetail: View {
     var body: some View {
         GrimoireDetailScaffold(eyebrow: "Working Result", title: entry.title, onEdit: { showingEdit = true }) {
                     GrimoireDetailSection(title: "Date") {
-                        GrimoireDetailRow(label: "Date", value: entry.date.formatted(date: .long, time: .omitted))
+                        detailValue(entry.date.formatted(date: .long, time: .omitted))
                     }
 
                     if let linked = entry.linkedWorking {
@@ -70,7 +69,7 @@ struct WorkingResultEntryDetail: View {
                     }
 
                     GrimoireDetailSection(title: "Time Since Working") {
-                        GrimoireDetailRow(label: "Time Since Working", value: entry.timeSinceWorking)
+                        detailValue(entry.timeSinceWorking)
                     }
 
                     VStack(alignment: .leading, spacing: 10) {
@@ -106,9 +105,13 @@ struct WorkingResultEntryDetail: View {
                         GrimoireDetailChips(label: "Tags", items: entry.tags, showsLabel: false)
                     }
 
-                    GrimoireDetailSection(title: "Related Entries") {
-                        GrimoireRelatedEntriesList(entries: entry.relatedEntries, showsLabel: false)
+                    if !entry.attachments.isEmpty {
+                        GrimoireDetailSection(title: "Attachments") {
+                            GrimoireAttachmentGallery(attachments: entry.attachments)
+                        }
                     }
+
+                    GrimoireRelatedEntriesList(entries: entry.relatedEntries)
 
                     GrimoireDetailSection(title: "Additional Notes") {
                         let trimmed = entry.additionalNotes.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -121,5 +124,12 @@ struct WorkingResultEntryDetail: View {
         .asteriumAdaptivePresentation(isPresented: $showingEdit) {
                 WorkingResultEntryForm(existing: entry)
         }
+    }
+
+    private func detailValue(_ value: String) -> some View {
+        Text(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? "No details" : value)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? LColors.textSecondary : LColors.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }

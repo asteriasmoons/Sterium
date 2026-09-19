@@ -1,7 +1,6 @@
-
 //
 //  DreamEntryDetail.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
@@ -46,20 +45,19 @@ struct DreamEntryDetail: View {
     }
 
     private var overviewSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            AsteriumSectionHeader(title: "Overview")
-
-            VStack(alignment: .leading, spacing: 6) {
-                Text("DREAM TYPE")
-                    .font(.system(size: 11, weight: .black, design: .rounded))
-                    .tracking(1.5)
-                    .foregroundStyle(LColors.textSecondary)
-
+        Group {
+            VStack(alignment: .leading, spacing: 8) {
+                AsteriumSectionHeader(title: "Dream Type")
                 GrimoireStatusBadge(text: entry.dreamType.displayName)
             }
 
-            detailBox(label: "Date", value: entry.date.formatted(date: .long, time: .omitted))
-            detailBox(label: "Sleep Quality", value: entry.sleepQuality.displayName)
+            detailBox(title: "Date") {
+                detailValue(entry.date.formatted(date: .long, time: .omitted))
+            }
+
+            detailBox(title: "Sleep Quality") {
+                detailValue(entry.sleepQuality.displayName)
+            }
         }
     }
 
@@ -88,9 +86,13 @@ struct DreamEntryDetail: View {
                 GrimoireDetailChips(label: "Tags", items: entry.tags, showsLabel: false)
             }
 
-            GrimoireDetailSection(title: "Related Entries") {
-                GrimoireRelatedEntriesList(entries: entry.relatedEntries, showsLabel: false)
+            if !entry.attachments.isEmpty {
+                GrimoireDetailSection(title: "Attachments") {
+                    GrimoireAttachmentGallery(attachments: entry.attachments)
+                }
             }
+
+            GrimoireRelatedEntriesList(entries: entry.relatedEntries)
 
             GrimoireDetailSection(title: "Additional Notes") {
                 Text(trimmedAdditionalNotes.isEmpty ? "No additional notes" : trimmedAdditionalNotes)
@@ -101,20 +103,22 @@ struct DreamEntryDetail: View {
         }
     }
 
-    private func detailBox(label: String, value: String) -> some View {
-        GlassCard {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(label.uppercased())
-                    .font(.system(size: 11, weight: .black, design: .rounded))
-                    .tracking(1.5)
-                    .foregroundStyle(LColors.textSecondary)
+    private func detailBox<Content: View>(title: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            AsteriumSectionHeader(title: title)
 
-                Text(value)
-                    .font(.system(size: 15, weight: .semibold, design: .rounded))
-                    .foregroundStyle(LColors.textPrimary)
+            GlassCard {
+                content()
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    private func detailValue(_ value: String) -> some View {
+        Text(value)
+            .font(.system(size: 15, weight: .semibold, design: .rounded))
+            .foregroundStyle(LColors.textPrimary)
+            .fixedSize(horizontal: false, vertical: true)
     }
 
     private func dreamElementValue(_ items: [String], emptyText: String) -> String {

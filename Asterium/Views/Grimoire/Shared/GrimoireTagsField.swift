@@ -1,7 +1,6 @@
-
 //
 //  GrimoireTagsField.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI

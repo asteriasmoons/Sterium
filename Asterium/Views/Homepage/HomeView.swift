@@ -1,18 +1,27 @@
 //
 //  HomeView.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI
+import SwiftData
 import Combine
+import CoreLocation
 
 struct HomeView: View {
     @StateObject private var planetaryService = PlanetaryHourService()
     @State private var now = Date()
     @State private var aiCorrespondences: CurrentCorrespondencesAIResponse?
     @State private var currentCorrespondenceDayKey = Self.dayKey(for: Date())
+    @State private var moonRiseSet: MoonRiseSetResult?
+    @State private var showReleaseNotes = false
+    @State private var showCustomize = false
+    @State private var timingFieldActive = false
+
+    @Query private var layouts: [HomeWidgetLayout]
 
     private let currentCorrespondencesService = CurrentCorrespondencesService()
+    private let moonRiseSetCalculator = MoonRiseSetCalculator()
 
     private var moon: MoonPhaseData {
         MoonPhaseCalculator.calculate(for: now)
@@ -74,25 +83,67 @@ struct HomeView: View {
         DailySpiritualCalculator.luckyHours(from: planetaryService.result)
     }
 
+    private var homeLayout: HomeWidgetLayout? {
+        layouts.sorted(by: { $0.updatedAt > $1.updatedAt }).first
+    }
+
+    private var visibleWidgets: [HomeWidget] {
+        homeLayout?.visibleWidgets ?? HomeWidget.defaultOrder
+    }
+
+    private var homeHeader: some View {
+        HStack(alignment: .center) {
+            AsteriumPageHeader(eyebrow: "TODAY'S", title: "Sterium")
+            Spacer()
+            Button { showCustomize = true } label: {
+                Image("cogwavy")
+                    .renderingMode(.template)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 24, height: 24)
+                    .foregroundStyle(LGradients.header)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @ViewBuilder
+    private func widgetView(for widget: HomeWidget) -> some View {
+        switch widget {
+        case .moon: currentMoonCard
+        case .sabbat: upcomingSabbatCard
+        case .planetaryDayHour: planetaryDayHourCard
+        case .correspondences: correspondencesCard
+        case .dailyNumerology: dailyNumerologyCard
+        case .retrogradesTransits: retrogradesTransitsCard
+        case .luckyHours: luckyHoursCard
+        case .workingTiming: WorkingTimingCard(coordinate: planetaryService.coordinate, isFieldActive: $timingFieldActive)
+        }
+    }
+
     var body: some View {
+        NavigationStack {
+        ScrollViewReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: LSpacing.sectionGap) {
-                AsteriumPageHeader(eyebrow: "TODAY'S", title: "Asterium")
+                homeHeader
 
-                currentMoonCard
-
-                upcomingSabbatCard
-
-                planetaryDayHourCard
-
-                correspondencesCard
-
-                luckyHoursCard
+                ForEach(visibleWidgets) { widget in
+                    widgetView(for: widget)
+                }
             }
             .padding(.horizontal, LSpacing.pageHorizontal)
-            .padding(.bottom, 120)
+            .padding(.bottom, timingFieldActive ? 420 : 120)
         }
         .scrollIndicators(.hidden)
+        .toolbar(.hidden, for: .navigationBar)
+        .onChange(of: timingFieldActive) { _, active in
+            if active {
+                withAnimation(.easeInOut(duration: 0.28)) {
+                    proxy.scrollTo(HomeWidget.workingTiming.id, anchor: .center)
+                }
+            }
+        }
         .background { AsteriumBackground() }
         .onReceive(
             Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -106,17 +157,39 @@ struct HomeView: View {
 
             currentCorrespondenceDayKey = updatedDayKey
 
+            updateMoonRiseSet(for: date)
+
             Task {
                 await refreshCurrentCorrespondences()
             }
         }
         .task {
+            updateMoonRiseSet(for: now)
             await loadCurrentCorrespondences()
         }
         .onChange(of: planetaryService.state) {
             Task {
                 await loadCurrentCorrespondences()
             }
+        }
+        .onChange(of: planetaryService.coordinate?.latitude) {
+            updateMoonRiseSet(for: now)
+        }
+        .onChange(of: planetaryService.coordinate?.longitude) {
+            updateMoonRiseSet(for: now)
+        }
+        .onAppear {
+            if ReleaseNotesTracker.hasUnseenRelease {
+                showReleaseNotes = true
+            }
+        }
+        .asteriumAdaptivePresentation(isPresented: $showReleaseNotes) {
+            ReleaseNotesView()
+        }
+        .asteriumAdaptivePresentation(isPresented: $showCustomize) {
+            HomeCustomizeView()
+        }
+        }
         }
     }
 
@@ -144,6 +217,19 @@ struct HomeView: View {
                         label: "NEXT PHASE",
                         value: "\(moon.daysUntilNextPhase)d",
                         asset: "hourglassfill"
+                    )
+                }
+
+                HStack(spacing: 12) {
+                    metricPill(
+                        label: "MOONRISE",
+                        value: moonRiseSetText(moonRiseSet?.moonrise),
+                        asset: "chevup"
+                    )
+                    metricPill(
+                        label: "MOONSET",
+                        value: moonRiseSetText(moonRiseSet?.moonset),
+                        asset: "chevdown"
                     )
                 }
 
@@ -276,6 +362,82 @@ struct HomeView: View {
             .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
+
+    private var numerology: DailyNumerology {
+        NumerologyCalculator.numerology(for: now)
+    }
+
+    private var dailyNumerologyCard: some View {
+        let data = numerology
+        return GlassCard {
+            VStack(alignment: .leading, spacing: 16) {
+                cardHeader(asset: "numcal", eyebrow: "DAILY NUMEROLOGY", title: "Universal Day \(data.number)")
+
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        metricPill(label: "NUMBER", value: "\(data.number)", asset: "hashtagwavy")
+                        metricPill(label: "INTENTION", value: data.intention, asset: "wand")
+                    }
+                    HStack(spacing: 12) {
+                        metricPill(label: "ARCANA", value: data.arcana, asset: "moontarot")
+                        metricPill(label: "ARCHETYPE", value: data.archetype, asset: "crystalballhand")
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private var skyEvents: (retrograde: RetrogradeEvent?, transits: [AstrologyTransit]) {
+        AstrologyTransitCalculator().homeScreenEvents(for: now)
+    }
+
+    private var retrogradesTransitsCard: some View {
+        let events = skyEvents
+        let transits = events.transits
+
+        return GlassCard {
+            VStack(alignment: .leading, spacing: 16) {
+                cardHeader(asset: "retrograde", eyebrow: "RETROGRADES & TRANSITS", title: "Current sky")
+
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        skyEventTile(
+                            label: "RETROGRADE",
+                            value: events.retrograde?.body.displayName ?? "None active",
+                            asset: "retrograde"
+                        )
+                        skyTransitTile(transits.indices.contains(0) ? transits[0] : nil)
+                    }
+
+                    HStack(spacing: 12) {
+                        skyTransitTile(transits.indices.contains(1) ? transits[1] : nil)
+                        skyTransitTile(transits.indices.contains(2) ? transits[2] : nil)
+                    }
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+    }
+
+    private func skyTransitTile(_ transit: AstrologyTransit?) -> some View {
+        guard let transit else {
+            return AnyView(skyEventTile(label: "TRANSIT", value: "None active", asset: "conjunction"))
+        }
+
+        return AnyView(
+            skyEventTile(
+                label: transit.aspect.tileLabel,
+                value: "\(transit.firstBody.displayName) + \(transit.secondBody.displayName)",
+                asset: transit.aspect.assetName
+            )
+        )
+    }
+
+    private func skyEventTile(label: String, value: String, asset: String) -> some View {
+        metricPill(label: label, value: value, asset: asset)
+    }
+
 
     private var luckyHoursCard: some View {
         GlassCard {
@@ -468,6 +630,31 @@ struct HomeView: View {
 
     private func timeString(_ date: Date) -> String {
         date.formatted(date: .omitted, time: .shortened)
+    }
+
+    private func moonRiseSetText(_ date: Date?) -> String {
+        guard planetaryService.coordinate != nil else {
+            return "Location Needed"
+        }
+
+        guard let date else {
+            return "None today"
+        }
+
+        return timeString(date)
+    }
+
+    private func updateMoonRiseSet(for date: Date) {
+        guard let coordinate = planetaryService.coordinate else {
+            moonRiseSet = nil
+            return
+        }
+
+        moonRiseSet = moonRiseSetCalculator.result(
+            for: date,
+            coordinate: coordinate,
+            timeZone: .autoupdatingCurrent
+        )
     }
 
     private func minutesUntil(_ date: Date) -> Int {

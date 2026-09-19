@@ -1,6 +1,6 @@
 //
 //  MoonPhaseData.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

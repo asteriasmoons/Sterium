@@ -1,3 +1,7 @@
+//
+// AsteriumComponents.swift
+// Sterium
+//
 
 import SwiftUI
 import PhotosUI
@@ -389,11 +393,15 @@ struct AsteriumPickerField: View {
     let title: String
     let options: [String]
     @Binding var selection: String
+    var leadingAsset: String? = nil
+    var maxDropdownHeight: CGFloat = 320
     @State private var isExpanded = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            fieldLabel(title)
+            if title.isEmpty == false {
+                fieldLabel(title)
+            }
 
             Button {
                 withAnimation(.spring(response: 0.28, dampingFraction: 0.85)) {
@@ -401,7 +409,15 @@ struct AsteriumPickerField: View {
                 }
             } label: {
                 GlassCard(cornerRadius: LSpacing.inputRadius, padding: 0) {
-                    HStack {
+                    HStack(spacing: 10) {
+                        if let leadingAsset {
+                            Image(leadingAsset)
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 18, height: 18)
+                                .foregroundStyle(LGradients.header)
+                        }
                         Text(selection.isEmpty ? "Choose" : selection)
                             .font(.system(size: 15, weight: .bold, design: .rounded))
                             .foregroundStyle(selection.isEmpty ? LColors.textSecondary : LColors.textPrimary)
@@ -443,7 +459,7 @@ struct AsteriumPickerField: View {
                             }
                         }
                     }
-                    .frame(maxHeight: 320)
+                    .frame(maxHeight: maxDropdownHeight)
                     .scrollIndicators(.visible)
                 }
                 .transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
@@ -456,6 +472,7 @@ struct AsteriumMultiSelectPickerField: View {
     let title: String
     let options: [String]
     @Binding var selections: Set<String>
+    var maxDropdownHeight: CGFloat = 320
     @State private var isExpanded = false
 
     private var displayText: String {
@@ -525,7 +542,7 @@ struct AsteriumMultiSelectPickerField: View {
                             }
                         }
                     }
-                    .frame(maxHeight: 320)
+                    .frame(maxHeight: maxDropdownHeight)
                     .scrollIndicators(.visible)
                 }
                 .transition(.opacity.combined(with: .scale(scale: 0.97, anchor: .top)))
@@ -601,6 +618,24 @@ struct AsteriumCompletionBanner: View {
 }
 
 extension View {
+    func grimoireFormBackground() -> some View {
+        contentMargins(.top, 16, for: .scrollContent)
+            .background {
+                ZStack {
+                    AsteriumBackground()
+                    GrimoireKeyboardDismissBridge()
+                        .frame(width: 0, height: 0)
+                }
+            }
+    }
+
+    func dismissesKeyboardOnOutsideTap() -> some View {
+        background {
+            GrimoireKeyboardDismissBridge()
+                .frame(width: 0, height: 0)
+        }
+    }
+
     func completionBanner(isShowing: Bool, message: String = "Done!") -> some View {
         overlay(alignment: .top) {
             AsteriumCompletionBanner(message: message, isShowing: isShowing)
@@ -618,6 +653,84 @@ extension View {
             fullScreenCover(isPresented: isPresented, content: content)
         } else {
             sheet(isPresented: isPresented, content: content)
+        }
+    }
+}
+
+private struct GrimoireKeyboardDismissBridge: UIViewRepresentable {
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+
+    func makeUIView(context: Context) -> AttachmentView {
+        let view = AttachmentView()
+        view.coordinator = context.coordinator
+        return view
+    }
+
+    func updateUIView(_ uiView: AttachmentView, context: Context) {
+        uiView.coordinator = context.coordinator
+        context.coordinator.attach(to: uiView.window)
+    }
+
+    static func dismantleUIView(_ uiView: AttachmentView, coordinator: Coordinator) {
+        coordinator.detach()
+    }
+
+    final class AttachmentView: UIView {
+        weak var coordinator: Coordinator?
+
+        override func didMoveToWindow() {
+            super.didMoveToWindow()
+            coordinator?.attach(to: window)
+        }
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        private weak var attachedWindow: UIWindow?
+        private var recognizer: UITapGestureRecognizer?
+
+        func attach(to window: UIWindow?) {
+            guard let window else {
+                detach()
+                return
+            }
+            guard attachedWindow !== window else { return }
+
+            detach()
+
+            let recognizer = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+            recognizer.cancelsTouchesInView = false
+            recognizer.delegate = self
+            window.addGestureRecognizer(recognizer)
+
+            attachedWindow = window
+            self.recognizer = recognizer
+        }
+
+        func detach() {
+            if let recognizer {
+                attachedWindow?.removeGestureRecognizer(recognizer)
+            }
+            recognizer = nil
+            attachedWindow = nil
+        }
+
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            var touchedView: UIView? = touch.view
+
+            while let view = touchedView {
+                if view is UITextField || view is UITextView || view is UIControl {
+                    return false
+                }
+                touchedView = view.superview
+            }
+
+            return true
+        }
+
+        @objc private func dismissKeyboard() {
+            attachedWindow?.endEditing(true)
         }
     }
 }

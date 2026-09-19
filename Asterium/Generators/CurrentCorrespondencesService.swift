@@ -1,6 +1,6 @@
 //
 //  CurrentCorrespondencesService.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

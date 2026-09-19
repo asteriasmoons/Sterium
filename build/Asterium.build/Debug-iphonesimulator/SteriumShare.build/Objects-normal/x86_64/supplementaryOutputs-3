@@ -1,0 +1,23 @@
+{
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/ExperienceEntry.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ExperienceEntry.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ExperienceEntry.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ExperienceEntry.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ExperienceEntry.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ExperienceEntry.swiftdeps"
+  },
+  "/Users/asteriasmoons/Desktop/Asterium/Asterium/Models/GeneratedLibraryModels.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GeneratedLibraryModels.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GeneratedLibraryModels.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GeneratedLibraryModels.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GeneratedLibraryModels.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/GeneratedLibraryModels.swiftdeps"
+  },
+  "/Users/asteriasmoons/Desktop/Asterium/SteriumShare/ShareViewController.swift" : {
+    "const-values" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ShareViewController.swiftconstvalues",
+    "dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ShareViewController.d",
+    "diagnostics" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ShareViewController.dia",
+    "object" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ShareViewController.o",
+    "swift-dependencies" : "/Users/asteriasmoons/Desktop/Asterium/build/Asterium.build/Debug-iphonesimulator/SteriumShare.build/Objects-normal/x86_64/ShareViewController.swiftdeps"
+  }
+}

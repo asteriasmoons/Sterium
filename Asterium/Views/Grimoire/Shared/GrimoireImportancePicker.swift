@@ -1,7 +1,6 @@
-
 //
 //  GrimoireImportancePicker.swift
-//  Asterium
+//  Sterium
 //
 
 import SwiftUI

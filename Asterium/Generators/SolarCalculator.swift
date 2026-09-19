@@ -1,6 +1,6 @@
 //
 //  SolarCalculator.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

@@ -1,6 +1,6 @@
 //
 //  MainTabView.swift
-//  Asterium
+//  Sterium
 
 import SwiftUI
 import SwiftData
@@ -10,7 +10,9 @@ enum AsteriumTab: CaseIterable {
     case correspondences
     case spells
     case grimoire
-    case profile
+    case visionBoards
+    case events
+    case settings
 
     static let primaryTabs: [AsteriumTab] = [
         .home,
@@ -20,7 +22,9 @@ enum AsteriumTab: CaseIterable {
     ]
 
     static let overflowTabs: [AsteriumTab] = [
-        .profile
+        .events,
+        .visionBoards,
+        .settings
     ]
 
     var icon: String {
@@ -33,8 +37,12 @@ enum AsteriumTab: CaseIterable {
             return "potionsparkle"
         case .grimoire:
             return "grimoire"
-        case .profile:
-            return "profilewavy"
+        case .visionBoards:
+            return "artboard"
+        case .events:
+            return "starcal"
+        case .settings:
+            return "settings"
         }
     }
 
@@ -48,8 +56,12 @@ enum AsteriumTab: CaseIterable {
             return "Spells"
         case .grimoire:
             return "Grimoire"
-        case .profile:
-            return "Profile"
+        case .visionBoards:
+            return "Vision Boards"
+        case .events:
+            return "Events"
+        case .settings:
+            return "Settings"
         }
     }
 }
@@ -88,8 +100,12 @@ struct MainTabView: View {
             SpellsView()
         case .grimoire:
             GrimoireView()
-        case .profile:
-            PlaceholderTabView(icon: "profilewavy", title: "Profile")
+        case .visionBoards:
+            VisionBoardsView()
+        case .events:
+            EventsView()
+        case .settings:
+            SettingsView()
         }
     }
 }

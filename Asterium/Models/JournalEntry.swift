@@ -1,7 +1,6 @@
-
 //
 //  JournalEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

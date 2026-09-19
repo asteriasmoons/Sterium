@@ -1,7 +1,6 @@
-
 //
 //  WorkingDocumentEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation

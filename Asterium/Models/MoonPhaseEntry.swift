@@ -1,7 +1,6 @@
-
 //
 //  MoonPhaseEntry.swift
-//  Asterium
+//  Sterium
 //
 
 import Foundation
@@ -16,9 +15,13 @@ final class MoonPhaseEntry {
     var zodiacSign: String = ""
     var energyLevel: Int = 1
     var mood: String = ""
+    var moodSelections: [String] = []
     var intentions: String = ""
     var ritualsPerformed: String = ""
     var manifestations: String = ""
+    var intentionItems: [String] = []
+    var ritualsPerformedItems: [String] = []
+    var manifestationItems: [String] = []
     var reflections: String = ""
 
     var importance: Int = 1
@@ -61,9 +64,13 @@ final class MoonPhaseEntry {
         zodiacSign: String = "",
         energyLevel: Int = 1,
         mood: String = "",
+        moodSelections: [String] = [],
         intentions: String = "",
         ritualsPerformed: String = "",
         manifestations: String = "",
+        intentionItems: [String] = [],
+        ritualsPerformedItems: [String] = [],
+        manifestationItems: [String] = [],
         reflections: String = "",
         importance: Int = 1,
         tags: [String] = [],
@@ -80,9 +87,13 @@ final class MoonPhaseEntry {
         self.zodiacSign = zodiacSign
         self.energyLevel = energyLevel
         self.mood = mood
+        self.moodSelections = moodSelections
         self.intentions = intentions
         self.ritualsPerformed = ritualsPerformed
         self.manifestations = manifestations
+        self.intentionItems = intentionItems
+        self.ritualsPerformedItems = ritualsPerformedItems
+        self.manifestationItems = manifestationItems
         self.reflections = reflections
         self.importance = importance
         self.tags = tags
