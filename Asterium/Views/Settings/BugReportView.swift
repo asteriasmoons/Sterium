@@ -82,11 +82,8 @@ struct BugReportView: View {
                     .renderingMode(.template)
                     .resizable()
                     .scaledToFit()
-                    .frame(width: 17, height: 17)
+                    .frame(width: 28, height: 28)
                     .foregroundStyle(LGradients.header)
-                    .frame(width: 44, height: 44)
-                    .background(LColors.glassSurface, in: Circle())
-                    .overlay { Circle().strokeBorder(LColors.glassBorder, lineWidth: 1) }
             }
             .buttonStyle(.plain)
             .padding(.top, 16)

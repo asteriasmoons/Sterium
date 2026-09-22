@@ -68,6 +68,7 @@ enum AsteriumTab: CaseIterable {
 
 struct MainTabView: View {
     @State private var selectedTab: AsteriumTab = .home
+    @EnvironmentObject private var reportRouter: SteriumReportRouter
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -87,6 +88,13 @@ struct MainTabView: View {
         }
         .ignoresSafeArea(edges: .bottom)
         .ignoresSafeArea(.keyboard, edges: .bottom)
+        .onChange(of: reportRouter.pendingReportConversationID) { _, newValue in
+            if newValue != nil {
+                withAnimation(.spring(duration: 0.3, bounce: 0.2)) {
+                    selectedTab = .settings
+                }
+            }
+        }
     }
 
     @ViewBuilder

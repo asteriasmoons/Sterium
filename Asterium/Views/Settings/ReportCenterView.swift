@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ReportCenterView: View {
     @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var reportRouter: SteriumReportRouter
     @State private var showingBugReport = false
     @State private var showingBetaFeedback = false
     @State private var showingFeatureRequest = false
@@ -31,7 +32,7 @@ struct ReportCenterView: View {
                     reportCard(
                         title: "Beta Feedback",
                         subtitle: "Share what you tested and how it felt.",
-                        asset: "chatsparkle"
+                        asset: "chatstar"
                     )
                 }
                 .buttonStyle(.plain)
@@ -70,6 +71,17 @@ struct ReportCenterView: View {
         }
         .asteriumAdaptivePresentation(isPresented: $showingSubmitted) {
             SubmittedReportsView()
+                .environmentObject(reportRouter)
+        }
+        .onAppear {
+            if reportRouter.pendingReportConversationID != nil {
+                showingSubmitted = true
+            }
+        }
+        .onChange(of: reportRouter.pendingReportConversationID) { _, newValue in
+            if newValue != nil {
+                showingSubmitted = true
+            }
         }
     }
 
@@ -89,7 +101,7 @@ struct ReportCenterView: View {
                     .foregroundStyle(isPlaceholder ? AnyShapeStyle(LColors.textSecondary) : AnyShapeStyle(LGradients.header))
                     .frame(width: 54, height: 54)
                     .background(LColors.glassSurface, in: Circle())
-                    .overlay { Circle().strokeBorder(LColors.glassBorder, lineWidth: 1) }
+                    .overlay { Circle().strokeBorder(LGradients.header, lineWidth: 1.5) }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -120,10 +132,7 @@ struct ReportCenterView: View {
             .renderingMode(.template)
             .resizable()
             .scaledToFit()
-            .frame(width: 17, height: 17)
+            .frame(width: 28, height: 28)
             .foregroundStyle(LGradients.header)
-            .frame(width: 44, height: 44)
-            .background(LColors.glassSurface, in: Circle())
-            .overlay { Circle().strokeBorder(LColors.glassBorder, lineWidth: 1) }
     }
 }

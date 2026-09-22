@@ -108,7 +108,7 @@ private struct CorrespondenceTypeSearchView: View {
                             ) { editedEntry in
                                 service.saveCustom(editedEntry, type: type, modelContext: modelContext)
                                 savedEntries = service.savedEntries(for: type, modelContext: modelContext)
-                                generatedEntry = nil
+                                generatedEntry = editedEntry.source == "custom" ? nil : editedEntry
                             }
                         } label: {
                             correspondenceEntryRow(currentGeneratedEntry)
@@ -1802,12 +1802,39 @@ private struct CorrespondenceEntryDetailView: View {
         .scrollIndicators(.hidden)
         .background { AsteriumBackground() }
         .toolbar(.hidden, for: .navigationBar)
+        .task {
+            await refreshIncompleteEssentialOil()
+        }
         .asteriumAdaptivePresentation(isPresented: $showingEditForm) {
             CustomCorrespondenceEntryForm(type: type, existing: entry) { editedEntry in
                 entry = editedEntry
                 onSave(editedEntry)
             }
         }
+    }
+
+    private func refreshIncompleteEssentialOil() async {
+        guard type == .essentialOil,
+              entry.source.caseInsensitiveCompare("custom") != .orderedSame,
+              entry.sourcePlant?.isEmpty != false ||
+              entry.plantPartUsed?.isEmpty != false ||
+              entry.aromaProfile?.isEmpty != false ||
+              entry.blendingNotes?.isEmpty != false ||
+              entry.complementaryOils?.isEmpty != false ||
+              entry.commonSubstitutions?.isEmpty != false else { return }
+
+        let service = CorrespondenceEngineService()
+        guard let cached = try? await service.cachedEntry(type: type, name: entry.name),
+              cached.sourcePlant?.isEmpty == false,
+              cached.plantPartUsed?.isEmpty == false,
+              cached.aromaProfile?.isEmpty == false,
+              cached.blendingNotes?.isEmpty == false,
+              cached.complementaryOils?.isEmpty == false,
+              cached.commonSubstitutions?.isEmpty == false,
+              entry.source.caseInsensitiveCompare("custom") != .orderedSame else { return }
+
+        entry = cached
+        onSave(cached)
     }
 
     private var header: some View {

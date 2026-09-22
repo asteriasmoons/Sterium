@@ -1,9 +1,25 @@
+import SwiftData
 import SwiftUI
 
 struct SubmittedReportDetailView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
     let report: SubmittedReport
+    let openConversationOnAppear: Bool
     @State private var selectedAttachment: SubmittedReportAttachment?
+    @State private var showConversation = false
+    @State private var conversationState: SteriumReportConversationState
+    @State private var conversationUnreadCount: Int
+    @State private var didHandleInitialConversationOpen = false
+    @StateObject private var conversationService = SteriumReportConversationService()
+
+    init(report: SubmittedReport, openConversationOnAppear: Bool = false) {
+        self.report = report
+        self.openConversationOnAppear = openConversationOnAppear
+        _conversationState = State(initialValue: report.conversationState)
+        _conversationUnreadCount = State(initialValue: report.conversationUnreadCount)
+    }
 
     private let columns = [
         GridItem(.flexible(), spacing: 12),
@@ -25,6 +41,13 @@ struct SubmittedReportDetailView: View {
                         .padding(.top, 16)
                 }
 
+                ReportConversationButton(
+                    state: conversationState,
+                    unreadCount: conversationUnreadCount
+                ) {
+                    showConversation = true
+                }
+
                 reportDetails
                 attachmentsSection
             }
@@ -38,6 +61,45 @@ struct SubmittedReportDetailView: View {
                 SubmittedReportImageView(attachment: selectedAttachment)
             }
         }
+        .asteriumAdaptivePresentation(isPresented: $showConversation) {
+            ReportConversationView(report: report)
+        }
+        .task {
+            await refreshConversationSummaryAsync()
+            openInitialConversationIfNeeded()
+        }
+        .onChange(of: showConversation) { _, isShowing in
+            if !isShowing {
+                refreshConversationSummary()
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(
+            for: SteriumReportConversationNotificationManager.conversationDataDidChange
+        )) { _ in
+            refreshConversationSummary()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            guard phase == .active else { return }
+            refreshConversationSummary()
+        }
+    }
+
+    private func refreshConversationSummary() {
+        Task {
+            await refreshConversationSummaryAsync()
+        }
+    }
+
+    private func refreshConversationSummaryAsync() async {
+        let summary = await conversationService.fetchSummary(for: report, modelContext: modelContext)
+        conversationState = summary.state
+        conversationUnreadCount = summary.reporterUnreadCount
+    }
+
+    private func openInitialConversationIfNeeded() {
+        guard openConversationOnAppear, !didHandleInitialConversationOpen else { return }
+        didHandleInitialConversationOpen = true
+        showConversation = true
     }
 
     @ViewBuilder
@@ -277,9 +339,6 @@ private var reportDetailCloseButton: some View {
         .renderingMode(.template)
         .resizable()
         .scaledToFit()
-        .frame(width: 17, height: 17)
+        .frame(width: 28, height: 28)
         .foregroundStyle(LGradients.header)
-        .frame(width: 44, height: 44)
-        .background(LColors.glassSurface, in: Circle())
-        .overlay { Circle().strokeBorder(LColors.glassBorder, lineWidth: 1) }
 }

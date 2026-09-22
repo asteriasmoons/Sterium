@@ -6,6 +6,7 @@
 import SwiftUI
 
 struct SettingsView: View {
+    @EnvironmentObject private var reportRouter: SteriumReportRouter
     @State private var showReleaseNotes = false
     @State private var showReportCenter = false
 
@@ -38,6 +39,17 @@ struct SettingsView: View {
         }
         .asteriumAdaptivePresentation(isPresented: $showReportCenter) {
             ReportCenterView()
+                .environmentObject(reportRouter)
+        }
+        .onAppear {
+            if reportRouter.pendingReportConversationID != nil {
+                showReportCenter = true
+            }
+        }
+        .onChange(of: reportRouter.pendingReportConversationID) { _, newValue in
+            if newValue != nil {
+                showReportCenter = true
+            }
         }
     }
 
@@ -52,7 +64,7 @@ struct SettingsView: View {
                     .foregroundStyle(LGradients.header)
                     .frame(width: 54, height: 54)
                     .background(LColors.glassSurface, in: Circle())
-                    .overlay { Circle().strokeBorder(LColors.glassBorder, lineWidth: 1) }
+                    .overlay { Circle().strokeBorder(LGradients.header, lineWidth: 1.5) }
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Send a Report")
@@ -87,7 +99,7 @@ struct SettingsView: View {
                     .frame(width: 54, height: 54)
                     .background(LColors.glassSurface, in: Circle())
                     .overlay {
-                        Circle().strokeBorder(LColors.glassBorder, lineWidth: 1)
+                        Circle().strokeBorder(LGradients.header, lineWidth: 1.5)
                     }
 
                 VStack(alignment: .leading, spacing: 4) {

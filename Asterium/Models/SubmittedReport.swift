@@ -1,6 +1,15 @@
 import Foundation
 import SwiftData
 
+// State enum lives in the model file so both the Sterium app target and the
+// SteriumShare extension target (which compiles this model) can see it.
+enum SteriumReportConversationState: String, CaseIterable, Codable, Hashable {
+    case notStarted
+    case invited
+    case accepted
+    case declined
+}
+
 @Model
 final class SubmittedReport {
     var id: UUID = UUID()
@@ -44,6 +53,15 @@ final class SubmittedReport {
     var additionalNotes: String = ""
     var status: String = "Submitted"
     var submittedAt: Date = Date()
+    var conversationRecordName: String = ""
+    var conversationZoneName: String = ""
+    var conversationZoneOwnerName: String = ""
+    var conversationShareURL: String = ""
+    var conversationStateRawValue: String = "notStarted"
+    var conversationUpdatedAt: Date?
+    var conversationLastMessageAt: Date?
+    var conversationUnreadCount: Int = 0
+    var conversationLastReadAt: Date?
 
     @Relationship(deleteRule: .cascade, inverse: \SubmittedReportAttachment.report)
     private var storedAttachments: [SubmittedReportAttachment]?
@@ -100,6 +118,15 @@ final class SubmittedReport {
         additionalNotes: String,
         status: String = "Submitted",
         submittedAt: Date = .now,
+        conversationRecordName: String = "",
+        conversationZoneName: String = "",
+        conversationZoneOwnerName: String = "",
+        conversationShareURL: String = "",
+        conversationState: SteriumReportConversationState = .notStarted,
+        conversationUpdatedAt: Date? = nil,
+        conversationLastMessageAt: Date? = nil,
+        conversationUnreadCount: Int = 0,
+        conversationLastReadAt: Date? = nil,
         attachments: [SubmittedReportAttachment] = []
     ) {
         self.id = id
@@ -143,11 +170,25 @@ final class SubmittedReport {
         self.additionalNotes = additionalNotes
         self.status = status
         self.submittedAt = submittedAt
+        self.conversationRecordName = conversationRecordName
+        self.conversationZoneName = conversationZoneName
+        self.conversationZoneOwnerName = conversationZoneOwnerName
+        self.conversationShareURL = conversationShareURL
+        self.conversationStateRawValue = conversationState.rawValue
+        self.conversationUpdatedAt = conversationUpdatedAt
+        self.conversationLastMessageAt = conversationLastMessageAt
+        self.conversationUnreadCount = conversationUnreadCount
+        self.conversationLastReadAt = conversationLastReadAt
         self.storedAttachments = attachments
 
         for attachment in attachments {
             attachment.report = self
         }
+    }
+
+    var conversationState: SteriumReportConversationState {
+        get { SteriumReportConversationState(rawValue: conversationStateRawValue) ?? .notStarted }
+        set { conversationStateRawValue = newValue.rawValue }
     }
 }
 

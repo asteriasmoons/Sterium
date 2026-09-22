@@ -288,11 +288,13 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Asterium;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Asterium uses your location to keep planetary day and hour guidance accurate even when the app is not open.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Asterium uses your location to display the planetary information on the homepage";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Sterium saves vision board images to your photo library when you tap Save to Photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -329,11 +331,13 @@
 				INFOPLIST_KEY_CFBundleDisplayName = Asterium;
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Asterium uses your location to keep planetary day and hour guidance accurate even when the app is not open.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Asterium uses your location to display the planetary information on the homepage";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "Sterium saves vision board images to your photo library when you tap Save to Photos.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 27.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

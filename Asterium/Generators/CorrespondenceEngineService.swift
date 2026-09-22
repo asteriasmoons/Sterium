@@ -376,7 +376,7 @@ final class CorrespondenceEngineService {
         let requestBody = CorrespondenceEngineRequest(
             type: type.backendValue,
             name: name,
-            refresh: (type == .sabbat || type == .herb || type == .flower || type == .crystal || type == .essentialOil || type == .color || type == .planet || type == .zodiacSign || type == .lunarPhase || type == .season || type == .dayOfWeek || type == .element || type == .tarotCard || type == .deity || type == .spirit || type == .animal || type == .tool || type == .number || refresh) ? true : nil
+            refresh: (type == .sabbat || type == .herb || type == .flower || type == .crystal || type == .color || type == .planet || type == .zodiacSign || type == .lunarPhase || type == .season || type == .dayOfWeek || type == .element || type == .tarotCard || type == .deity || type == .spirit || type == .animal || type == .tool || type == .number || refresh) ? true : nil
         )
 
         var request = URLRequest(url: url)
@@ -400,6 +400,32 @@ final class CorrespondenceEngineService {
         let entry = try JSONDecoder().decode(CorrespondenceEntryResponse.self, from: data)
         save(entry, type: type, modelContext: modelContext)
         return entry
+    }
+
+    func cachedEntry(type: CorrespondenceType, name: String) async throws -> CorrespondenceEntryResponse? {
+        guard var components = URLComponents(string: "\(baseURL)/api/correspondences/cached") else {
+            throw CorrespondenceEngineServiceError.invalidURL
+        }
+        components.queryItems = [
+            URLQueryItem(name: "type", value: type.backendValue),
+            URLQueryItem(name: "name", value: name)
+        ]
+        guard let url = components.url else {
+            throw CorrespondenceEngineServiceError.invalidURL
+        }
+
+        let (data, response) = try await session.data(from: url)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw CorrespondenceEngineServiceError.invalidResponse
+        }
+        if httpResponse.statusCode == 404 { return nil }
+        guard (200..<300).contains(httpResponse.statusCode) else {
+            let backendError = try? JSONDecoder().decode(BackendError.self, from: data)
+            throw CorrespondenceEngineServiceError.backend(
+                backendError?.error ?? "Failed to load correspondence."
+            )
+        }
+        return try JSONDecoder().decode(CorrespondenceEntryResponse.self, from: data)
     }
 
     func savedEntries(for type: CorrespondenceType, modelContext: ModelContext) -> [CorrespondenceEntryResponse] {
